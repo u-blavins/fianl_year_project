@@ -1,0 +1,15 @@
+service: S3
+  name: "test-s3-bucket"
+  tags:
+    -
+      Key: "Owner"
+      Value: "ublavins@test.com"
+    -
+      Key: "Description"
+      Value: "This is a test bucket"
+    -
+      Key: "Team"
+      Value: "SecretSasquatchSociety"
+  web:
+    index_doc: index.html
+    error_doc: error.html

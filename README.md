@@ -14,6 +14,9 @@ To make the deployment of infrastructure an easier process so that an end user d
 - To house resources that have been deployed in a Infrastructure as Code template.
 - To construct an Infrastructure as Code template that is Cloud Service Provider independent.
 
+## Branching
+When adding a feature, branch off the develop branch by switching from `master` to `develop` and then creating a feature branch.
+
 ## Prerequisites
 - Python 3.x
 - Pip
