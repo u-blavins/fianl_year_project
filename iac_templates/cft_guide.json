@@ -1,0 +1,72 @@
+{
+    "ReplicationConfiguration": {
+        "Role": "replication-role-within-account",
+        "Rules":[
+            {
+                "ReplicationDestination":{
+                    "AccessControlTranslation": "BucketOwnerIfOwnerNotTheSame",
+                    "Account": "DestinationBucketAccount",
+                    "Bucket": "DestinationBucketARN",
+                    "Encryption": {
+                        "ReplicaKeyID": "AWS KMS arn"
+                    },
+                    "StorageClass": "StorageTier"
+                },
+                "Id": "ID for the replication rule",
+                "Prefix": "",
+                "SourceSelectionCriteria":{
+                    "SseKmsEncryptedObjects": {
+                        "Status": "True/False"
+                    } 
+                },
+                "Status": "True/False"
+            }
+        ]
+    },
+    "PublicAccessBlockConfiguration":{
+        "BlockPublicAcls" : "True/False",
+        "BlockPublicPolicy" : "True/False",
+        "IgnorePublicAcls" : "True/False",
+        "RestrictPublicBuckets" : "True/False"
+    },
+    "LoggingConfiguration": {
+        "DestinationBucketName": "bucket-name-same-account",
+        "LogfilePrefix": "bucket-name/"
+    },
+    "ObjectLockEnabled": "Enabled",
+    "ObjectLockConfiguration": {
+        "ObjectLockEnabled": "Enabled",
+        "Rule": {
+            "DefaultRetention": {
+                "Days": 1,
+                "Mode": 1,
+                "Years": 1223
+            }
+        }
+    },
+    "LifeCycleConfiguration": {
+        "Rules": {
+            "Id": "lifecycle rule ID",
+            "AbortIncompleteMultipartUpload": {
+                "DaysAfterInitiation": 1
+            },
+            "ExpirationInDays": "Days",
+            "ExpirationDate": "Timestamp",
+            "NoncurrentVersionExpirationInDays": 1,
+            "NoncurrentVersionTransistions": [
+                {
+                    "StorageClass": "Class",
+                    "TransistionInDays": 1
+                }
+            ],
+            "Status": "Enabled/Disabled",
+            "Transistions": [
+                {
+                    "StorageClass": "Class",
+                    "TransistionDate": "Date",
+                    "TransistionIDays": 1
+                }
+            ]
+        }
+    }
+}

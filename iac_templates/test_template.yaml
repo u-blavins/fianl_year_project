@@ -1,15 +1,72 @@
 service: S3
-  name: "test-s3-bucket"
-  tags:
-    -
-      Key: "Owner"
-      Value: "ublavins@test.com"
-    -
-      Key: "Description"
-      Value: "This is a test bucket"
-    -
-      Key: "Team"
-      Value: "SecretSasquatchSociety"
-  web:
-    index_doc: index.html
-    error_doc: error.html
+  bucket:
+    name: test-s3-bucket
+
+    tags:
+      -
+        Owner: ublavins@test.com
+      -
+        Description: This is a test bucket
+      -
+        Team: SoftwareEngineering2016
+
+    web:
+      index_doc: index.html
+      error_doc: error.html
+
+    versioning:
+      status: True
+
+    replication:
+      role: arn:aws:iam::{ACCOUNT}:role/iam-role-here
+      rules:
+        -
+          id: replication_rule_id (Not Needed)
+          prefix: ~
+          destination:
+            account: ACCOUNT_NUM
+            bucket: arn:aws:s3:::bucket-to-replicate-to
+            encryption: encryption_key
+          source_selection_criteria:
+            kms_encryption_objects:
+              status: True/False
+          status: True/False
+
+    block_public_access:
+      block_public_acl: True/False
+      block_public_policy: True/False
+      ignore_public_acl: True/False
+      restrict_public_buckets: True/False
+
+    logging:
+      status: enabled/disabled
+      config:
+        bucket: bucket_name
+        lofgfile_prefix: prefix
+
+    object_lock:
+      config:
+        rule:
+          retention_period:
+            days: 1
+            mode: 1
+            years: 1 
+
+    lifecycle_configuration:
+      rules:
+        -
+          id: rule_id
+          prefix: ~
+          abort_incomplete_mp_upload:
+            days_after_initiation: date
+          expiration_days: days
+          expiration_date: date
+          noncurrent_transistion_days:
+            storage_class: class
+            transistion_days: days
+          status: enabled/disabled
+          transistions:
+            - 
+              storage_class: class
+              transistion_date: date
+              transistion_days: days

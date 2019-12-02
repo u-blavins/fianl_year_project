@@ -1,0 +1,7 @@
+service: S3
+  bucket:
+    public_access_block:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true

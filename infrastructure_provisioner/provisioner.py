@@ -1,4 +1,5 @@
 import yaml
+import json
 
 
 class ServiceProvisioner:
@@ -6,6 +7,4 @@ class ServiceProvisioner:
 
     def __init__(self, service, payload):
         self.service = service
-        self.payload = payload
-
-    
+        self.stack = payload
