@@ -1,5 +1,7 @@
 service: S3
   bucket:
+    region: eu-west-1 | eu-west-2
+
     name: test-s3-bucket
 
     tags:
@@ -13,6 +15,9 @@ service: S3
     web:
       index_doc: index.html
       error_doc: error.html
+      redirect:
+        hostname: host
+        protocol: http/https
 
     versioning:
       status: True
@@ -31,7 +36,8 @@ service: S3
             kms_encryption_objects:
               status: True/False
           status: True/False
-
+    # think about what if block public access is there or not
+    # i.e. if not present, set True for BlockPublicAccess 
     block_public_access:
       block_public_acl: True/False
       block_public_policy: True/False
@@ -40,6 +46,7 @@ service: S3
 
     logging:
       status: enabled/disabled
+      # enabled or disable config below
       config:
         bucket: bucket_name
         lofgfile_prefix: prefix

@@ -1,7 +1,12 @@
 service: S3
   bucket:
-    public_access_block:
-      BlockPublicAcls: true
-      BlockPublicPolicy: true
-      IgnorePublicAcls: true
-      RestrictPublicBuckets: true
+    deny_external_access:
+      sid: DenyExternalAccessFromOrg
+      action: s3:*
+      effect: deny
+      prinicpal: *
+      resource: arn:aws:s3:::bucket-name/*
+      condition:
+        string_not_equals:
+          aws_principal_org_id: 
+

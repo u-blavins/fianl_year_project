@@ -39,3 +39,11 @@ To run the pytests locally, enter the following command in a terminal:
 To run a test coverage report, use this:
 ```$xslt
 > python -m --cov-report html --cov {package/file}
+
+routing_rules:
+        redirect_rule:
+          host_name: host
+          http_redirect_code: redirect code
+          protocol: http/https
+          ReplaceKeyPrefixWith: String
+          ReplaceKeyWith: String
