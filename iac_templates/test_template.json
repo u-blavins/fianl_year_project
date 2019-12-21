@@ -47,7 +47,16 @@
                 "RestrictPublicBuckets": "True/False"
             },
             "Logging": {
-                
+                "Status": "Enabled/Disabled",
+                "Config": {
+                    "Bucket": "BucketToLogTo",
+                    "LogfilePrefix": "~"
+                }
+            },
+            "ObjectLock": {
+                "Config": {
+                    "Rule": 
+                }
             }
         }
     ]
