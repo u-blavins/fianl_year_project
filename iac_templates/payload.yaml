@@ -1,0 +1,168 @@
+Resources:
+  - Service: s3
+    Bucket:
+      # Required
+      BucketName: test-bucket
+      # Not Required
+      AccelerationStatus: Enabled | Suspended
+      # Not Required
+      AccessControl: private | public-read | public-read-write | aws-exec-read | authenticated-read | bucket-owner-read | bucket-owner-full-control | log-delivery-write
+      # Not Required
+      AnalyticsConfiguration:
+        # Required
+        Id: analytic-config-test
+        # Not Required
+        Prefix: ~
+        # Required
+        Destination:
+          # Not Required
+          BucketAccountId: ACCOUNT_NUM
+          # Required
+          BucketArn: BUCKET_ARN
+          # Not Required
+          Prefix: ~
+        # Not Required
+        Tags:
+          # Required
+          - Key: key
+            Value: value
+      # Required
+      BucketEncryption:
+        # Required
+        SSEAlgorithm: AES256 | aws:kms
+        # If kms selected
+        KMSMasterKeyID: test-kms-key
+      # Not Required
+      CorsConfiguration:
+        # Required
+          # Not Required
+        - AllowedHeaders:
+          - "Headers specified in Access-Control-Request-Headers"
+          # Required
+          AllowedMethods:
+          - "GET | PUT | HEAD | POST | DELETE"
+          # Required
+          AllowedOrigins:
+          - "Specify origins wanted for cross-domain requests from"
+          # Not Required
+          ExposedHeaders:
+          - "header in response that customers are able to access from apps"
+          # Not Required
+          Id: CorsRuleId
+          # Not Required
+          MaxAge: "Integer in seconds for browser to cache response"
+      # Not Required
+      InventoryConfigurations:
+        # Required
+        - Destination:
+            # Not Required
+            BucketAccountId: ACCOUNT_NUM
+            # Required
+            BucketArn: BUCKET_ARN
+            # Not Required
+            Prefix: ~
+          # Required
+          Enabled: True | False
+          # Required
+          Id: InventoryConfigurationId
+          # Required
+          IncludedObjectVersions: All | Current
+          # Not Required
+          OptionalFields:
+          - "Size | LastModifiedDate | StorageClass | ETag | "
+          - "IsMultipartUploaded | ReplicationStatus | EncryptionStatus "
+          - "| ObjectLockRetainUntilDate | ObjectLockMode |"
+          - " ObjectLockLegalHoldStatus | IntelligentTieringAccessTier"
+          # Not Required
+          Prefix: ~
+          # Required
+          ScheduledFrequency: Daily | Weekly
+      # Not Required
+      LifecycleConfiguration:
+        # Required
+          # A single property required
+        - AbortIncompleteMultipartUpload: Integer days which S3 aborts incomplete mp upload
+          ExpirationDate: Timestamp when objects deleted from S3 - ISO 8601
+          ExpirationInDays: Integer days after creation when objects deleted
+          NoncurrentVersionExpirationInDays: Integer same as current but for versioned objects
+          NoncurrentVersionTransistions:
+            - StorageClass: DEEP_ARCHIVE | GLACIER | INTELLIGENT_TIERING | ONEZONE_IA | STANDARD_IA
+              TransistionInDays: Integer days before S3 performs transistion to Storage Class
+          Transistions:
+              # Either transistion date or days
+            - StorageClass: DEEP_ARCHIVE | GLACIER | INTELLIGENT_TIERING | ONEZONE_IA | STANDARD_IA
+              TransitionDate : Timestamp S3 performs transistion to Storage Clas,
+              TransistionInDays: Integer days before S3 performs transistion to Storage Class
+          # Not Required
+          Id: "LicecycleRuleId"
+          # Not Required
+          Prefix: ~
+          # Required
+          Status: Enabled | Disabled
+          # Not Required
+          Tags:
+            # Required
+            - Key: key
+              Value: value
+      # Not Required
+      LoggingConfiguration:
+        # Not Required
+        DestinationBucketName: Name of bucket where S3 stores access log files
+        LogFilePrefix: Prefix for all log object keys
+      # Not Required
+      MetricsConfigurations:
+        # Required
+          # Required
+        - Id: MetricConfigurationId
+          # Not Required
+          Prefix: ~
+          # Not Required
+          Tags:
+            # Required
+            - Key: key
+              Value: value
+      # Not Required
+      NotificationConfiguration:
+        # Not Required
+        LambdaConfigurations:
+          # Required
+            # Required
+          - Event: Bucket event to invoke lambda
+            # Not Required
+            Filter:
+                # Required
+              - Name: prefix | suffix
+                Value: filter search value for object key names
+            Function: arn of lambda function to call
+        # Not Required
+        QueueConfigurations:
+          # Required
+            # Required
+          - Event: Bucket event to publish message to queue
+            # Not Required
+            Filter:
+                # Required
+              - Name: prefix | suffix
+                Value: filter search value for object key names
+            Queue: arn of sqs queue
+        # Not Required
+        TopicConfigurations:
+          # Required
+            # Required
+          - Event: Bucket event to send notification to topic
+            # Not Required
+            Filter:
+                # Required
+              - Name: prefix | suffix
+                Value: filter search value for object key names
+            Topic: arn of sns topic
+      # Not Required
+      
+
+
+
+    
+
+
+
+
