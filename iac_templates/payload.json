@@ -1,0 +1,72 @@
+{
+    "Resources": [
+      {
+        "Service": "s3",
+        "Bucket": {
+          "BucketName": "test-bucket",
+          "AccelerationStatus": "Enabled | Suspended",
+          "AccessControl": "private | public-read | public-read-write | aws-exec-read | authenticated-read | bucket-owner-read | bucket-owner-full-control | log-delivery-write",
+          "AnalyticsConfiguration": {
+            "Id": "analytic-config-test",
+            "Prefix": null,
+            "Destination": {
+              "BucketAccountId": "ACCOUNT_NUM",
+              "BucketArn": "BUCKET_ARN",
+              "Prefix": null
+            },
+            "Tags": [
+              {
+                "Key": "key",
+                "Value": "value"
+              }
+            ]
+          },
+          "BucketEncryption": {
+            "SSEAlgorithm": "AES256 | aws:kms",
+            "KMSMasterKeyID": "test-kms-key"
+          },
+          "CorsConfiguration": [
+            {
+              "AllowedHeaders": [
+                "Headers specified in Access-Control-Request-Headers"
+              ],
+              "AllowedMethods": [
+                "GET | PUT | HEAD | POST | DELETE"
+              ],
+              "AllowedOrigins": [
+                "Specify origins wanted for cross-domain requests from"
+              ],
+              "ExposedHeaders": [
+                "header in response that customers are able to access from apps"
+              ],
+              "Id": "CorsRuleId",
+              "MaxAge": "Integer in seconds for browser to cache response"
+            }
+          ],
+          "InventoryConfigurations": [
+            {
+              "Destination": {
+                "BucketAccountId": "ACCOUNT_NUM",
+                "BucketArn": "BUCKET_ARN",
+                "Prefix": null
+              },
+              "Enabled": "True | False",
+              "Id": "InventoryConfigurationId",
+              "IncludedObjectVersions": "All | Current",
+              "OptionalFields": [
+                "Size | LastModifiedDate | StorageClass | ETag | ",
+                "IsMultipartUploaded | ReplicationStatus | EncryptionStatus ",
+                "| ObjectLockRetainUntilDate | ObjectLockMode |",
+                " ObjectLockLegalHoldStatus | IntelligentTieringAccessTier"
+              ],
+              "Prefix": null,
+              "ScheduledFrequency": "Daily | Weekly"
+            }
+          ],
+          "LifecycleConfiguration": [
+            null
+          ]
+        }
+      }
+    ]
+  }

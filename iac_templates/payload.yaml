@@ -157,7 +157,15 @@ Resources:
                 Value: filter search value for object key names
             Topic: arn of sns topic
       # Not Required
-      
+      ObjectLockConfiguration:
+        # Required
+        Rule:
+          # Not Required
+          DefaultRetention:
+            Days: Integer days for default retention
+            Mode: COMPLIANCE | GOVERNANCE - retention mode GOV - object lock can be removed
+            Years: Integer years for default retention
+
 
 
 
