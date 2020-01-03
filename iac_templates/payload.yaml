@@ -165,6 +165,76 @@ Resources:
             Days: Integer days for default retention
             Mode: COMPLIANCE | GOVERNANCE - retention mode GOV - object lock can be removed
             Years: Integer years for default retention
+      # Not Required
+      PublicAccessConfiguration:
+        # Not Required
+        # All attributes stated will be set to true if present
+        - BlockPublicAcls
+        - BlockPublicPolicy
+        - IgnorePublicAcls
+        - RestrictPublicBuckets
+      # Not Required
+      ReplicationConfiguration:
+        # Required
+        Role: iam role arn
+        Rules:
+          # Required
+          - Destination:
+              # Not Required
+              Owner: Replica owner
+              # Required if owner present
+              Account: Account ID
+              # Required
+              Bucket: arn of bucket
+              # Not Required
+              ReplicaKmsKeyID: Key used for encrypting replica objects
+              # Not Required
+              StorageClass: "DEEP_ARCHIVE | GLACIER | INTELLIGENT_TIERING | ONEZONE_IA | REDUCED_REDUNDANCY | STANDARD | STANDARD_IA"
+            # Not Required
+            Id: Replication ID
+            # Required - empty signifies all objects replicated
+            Prefix: Object key name prefix
+            # Not Required
+            SseEncryptionEnabled: Enabled | Disabled
+            # Required
+            Status: Enabled | Disabled
+      # Required
+      Tags:
+        # Required
+        - Key: Value
+      # Not Required
+      VersionConfiguration: Enabled | Suspended
+      # Not Required
+      WebsiteConfiguration:
+        # Not Required
+        Error: Name of error document
+        # Not Required
+        Index: Name of index document
+        # Not Required
+        RedirectAllRequestsTo:
+          # Required
+          Hostname: Name of host where requests are redirected
+          # Not Required
+          Protocol: http | https
+        # Not Required
+        RoutingRules:
+            # Required
+          - RedirectRules:
+              # Not Required
+            - HostName: Name of host where requests are redirected
+              # Not Required
+              HttpRedirectCode: Http redirect code to use on response
+              # Not Required
+              Protocol: http | https
+              # Not Required
+              ReplaceKeyPrefixWith: Object key prefix to use in redirect request
+              # Not Required
+              ReplaceKeyWith: Object key to use in redirect request
+            # Not Required - either rule or both
+            RoutingRuleCondition:
+              HttpErrorCodeReturnsEquals: HTTP error code when redirect applied
+              KeyPrefixEquals: Object key name prefix when redirect applied
+
 
 
 

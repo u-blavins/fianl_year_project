@@ -1,72 +1,217 @@
 {
-    "Resources": [
-      {
-        "Service": "s3",
-        "Bucket": {
-          "BucketName": "test-bucket",
-          "AccelerationStatus": "Enabled | Suspended",
-          "AccessControl": "private | public-read | public-read-write | aws-exec-read | authenticated-read | bucket-owner-read | bucket-owner-full-control | log-delivery-write",
-          "AnalyticsConfiguration": {
-            "Id": "analytic-config-test",
-            "Prefix": null,
+  "Resources": [
+    {
+      "Service": "s3",
+      "Bucket": {
+        "BucketName": "test-bucket",
+        "AccelerationStatus": "Enabled | Suspended",
+        "AccessControl": "private | public-read | public-read-write | aws-exec-read | authenticated-read | bucket-owner-read | bucket-owner-full-control | log-delivery-write",
+        "AnalyticsConfiguration": {
+          "Id": "analytic-config-test",
+          "Prefix": null,
+          "Destination": {
+            "BucketAccountId": "ACCOUNT_NUM",
+            "BucketArn": "BUCKET_ARN",
+            "Prefix": null
+          },
+          "Tags": [
+            {
+              "Key": "key",
+              "Value": "value"
+            }
+          ]
+        },
+        "BucketEncryption": {
+          "SSEAlgorithm": "AES256 | aws:kms",
+          "KMSMasterKeyID": "test-kms-key"
+        },
+        "CorsConfiguration": [
+          {
+            "AllowedHeaders": [
+              "Headers specified in Access-Control-Request-Headers"
+            ],
+            "AllowedMethods": [
+              "GET | PUT | HEAD | POST | DELETE"
+            ],
+            "AllowedOrigins": [
+              "Specify origins wanted for cross-domain requests from"
+            ],
+            "ExposedHeaders": [
+              "header in response that customers are able to access from apps"
+            ],
+            "Id": "CorsRuleId",
+            "MaxAge": "Integer in seconds for browser to cache response"
+          }
+        ],
+        "InventoryConfigurations": [
+          {
             "Destination": {
               "BucketAccountId": "ACCOUNT_NUM",
               "BucketArn": "BUCKET_ARN",
               "Prefix": null
             },
+            "Enabled": "True | False",
+            "Id": "InventoryConfigurationId",
+            "IncludedObjectVersions": "All | Current",
+            "OptionalFields": [
+              "Size | LastModifiedDate | StorageClass | ETag | ",
+              "IsMultipartUploaded | ReplicationStatus | EncryptionStatus ",
+              "| ObjectLockRetainUntilDate | ObjectLockMode |",
+              " ObjectLockLegalHoldStatus | IntelligentTieringAccessTier"
+            ],
+            "Prefix": null,
+            "ScheduledFrequency": "Daily | Weekly"
+          }
+        ],
+        "LifecycleConfiguration": [
+          {
+            "AbortIncompleteMultipartUpload": "Integer days which S3 aborts incomplete mp upload",
+            "ExpirationDate": "Timestamp when objects deleted from S3 - ISO 8601",
+            "ExpirationInDays": "Integer days after creation when objects deleted",
+            "NoncurrentVersionExpirationInDays": "Integer same as current but for versioned objects",
+            "NoncurrentVersionTransistions": [
+              {
+                "StorageClass": "DEEP_ARCHIVE | GLACIER | INTELLIGENT_TIERING | ONEZONE_IA | STANDARD_IA",
+                "TransistionInDays": "Integer days before S3 performs transistion to Storage Class"
+              }
+            ],
+            "Transistions": [
+              {
+                "StorageClass": "DEEP_ARCHIVE | GLACIER | INTELLIGENT_TIERING | ONEZONE_IA | STANDARD_IA",
+                "TransitionDate": "Timestamp S3 performs transistion to Storage Clas,",
+                "TransistionInDays": "Integer days before S3 performs transistion to Storage Class"
+              }
+            ],
+            "Id": "LicecycleRuleId",
+            "Prefix": null,
+            "Status": "Enabled | Disabled",
             "Tags": [
               {
                 "Key": "key",
                 "Value": "value"
               }
             ]
-          },
-          "BucketEncryption": {
-            "SSEAlgorithm": "AES256 | aws:kms",
-            "KMSMasterKeyID": "test-kms-key"
-          },
-          "CorsConfiguration": [
+          }
+        ],
+        "LoggingConfiguration": {
+          "DestinationBucketName": "Name of bucket where S3 stores access log files",
+          "LogFilePrefix": "Prefix for all log object keys"
+        },
+        "MetricsConfigurations": [
+          {
+            "Id": "MetricConfigurationId",
+            "Prefix": null,
+            "Tags": [
+              {
+                "Key": "key",
+                "Value": "value"
+              }
+            ]
+          }
+        ],
+        "NotificationConfiguration": {
+          "LambdaConfigurations": [
             {
-              "AllowedHeaders": [
-                "Headers specified in Access-Control-Request-Headers"
+              "Event": "Bucket event to invoke lambda",
+              "Filter": [
+                {
+                  "Name": "prefix | suffix",
+                  "Value": "filter search value for object key names"
+                }
               ],
-              "AllowedMethods": [
-                "GET | PUT | HEAD | POST | DELETE"
-              ],
-              "AllowedOrigins": [
-                "Specify origins wanted for cross-domain requests from"
-              ],
-              "ExposedHeaders": [
-                "header in response that customers are able to access from apps"
-              ],
-              "Id": "CorsRuleId",
-              "MaxAge": "Integer in seconds for browser to cache response"
+              "Function": "arn of lambda function to call"
             }
           ],
-          "InventoryConfigurations": [
+          "QueueConfigurations": [
+            {
+              "Event": "Bucket event to publish message to queue",
+              "Filter": [
+                {
+                  "Name": "prefix | suffix",
+                  "Value": "filter search value for object key names"
+                }
+              ],
+              "Queue": "arn of sqs queue"
+            }
+          ],
+          "TopicConfigurations": [
+            {
+              "Event": "Bucket event to send notification to topic",
+              "Filter": [
+                {
+                  "Name": "prefix | suffix",
+                  "Value": "filter search value for object key names"
+                }
+              ],
+              "Topic": "arn of sns topic"
+            }
+          ]
+        },
+        "ObjectLockConfiguration": {
+          "Rule": {
+            "DefaultRetention": {
+              "Days": "Integer days for default retention",
+              "Mode": "COMPLIANCE | GOVERNANCE - retention mode GOV - object lock can be removed",
+              "Years": "Integer years for default retention"
+            }
+          }
+        },
+        "PublicAccessConfiguration": [
+          "BlockPublicAcls",
+          "BlockPublicPolicy",
+          "IgnorePublicAcls",
+          "RestrictPublicBuckets"
+        ],
+        "ReplicationConfiguration": {
+          "Role": "iam role arn",
+          "Rules": [
             {
               "Destination": {
-                "BucketAccountId": "ACCOUNT_NUM",
-                "BucketArn": "BUCKET_ARN",
-                "Prefix": null
+                "Owner": "Replica owner",
+                "Account": "Account ID",
+                "Bucket": "arn of bucket",
+                "ReplicaKmsKeyID": "Key used for encrypting replica objects",
+                "StorageClass": "DEEP_ARCHIVE | GLACIER | INTELLIGENT_TIERING | ONEZONE_IA | REDUCED_REDUNDANCY | STANDARD | STANDARD_IA"
               },
-              "Enabled": "True | False",
-              "Id": "InventoryConfigurationId",
-              "IncludedObjectVersions": "All | Current",
-              "OptionalFields": [
-                "Size | LastModifiedDate | StorageClass | ETag | ",
-                "IsMultipartUploaded | ReplicationStatus | EncryptionStatus ",
-                "| ObjectLockRetainUntilDate | ObjectLockMode |",
-                " ObjectLockLegalHoldStatus | IntelligentTieringAccessTier"
-              ],
-              "Prefix": null,
-              "ScheduledFrequency": "Daily | Weekly"
+              "Id": "Replication ID",
+              "Prefix": "Object key name prefix",
+              "SseEncryptionEnabled": "Enabled | Disabled",
+              "Status": "Enabled | Disabled"
             }
-          ],
-          "LifecycleConfiguration": [
-            null
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Value"
+          }
+        ],
+        "VersionConfiguration": "Enabled | Suspended",
+        "WebsiteConfiguration": {
+          "Error": "Name of error document",
+          "Index": "Name of index document",
+          "RedirectAllRequestsTo": {
+            "Hostname": "Name of host where requests are redirected",
+            "Protocol": "http | https"
+          },
+          "RoutingRules": [
+            {
+              "RedirectRules": [
+                {
+                  "HostName": "Name of host where requests are redirected",
+                  "HttpRedirectCode": "Http redirect code to use on response",
+                  "Protocol": "http | https",
+                  "ReplaceKeyPrefixWith": "Object key prefix to use in redirect request",
+                  "ReplaceKeyWith": "Object key to use in redirect request"
+                }
+              ],
+              "RoutingRuleCondition": {
+                "HttpErrorCodeReturnsEquals": "HTTP error code when redirect applied",
+                "KeyPrefixEquals": "Object key name prefix when redirect applied"
+              }
+            }
           ]
         }
       }
-    ]
-  }
+    }
+  ]
+}
