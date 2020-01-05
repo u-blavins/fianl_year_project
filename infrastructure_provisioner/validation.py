@@ -8,7 +8,7 @@ class Validation:
         """ Initialise class """
         self.payload = payload
 
-    def get_service(self):
-        """ Return the service type """
-        if isinstance(self.payload, list):
+    # def get_service(self):
+    #     """ Return the service type """
+    #     if isinstance(self.payload, list):
             

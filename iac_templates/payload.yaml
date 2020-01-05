@@ -4,7 +4,7 @@ Resources:
       # Required
       BucketName: test-bucket
       # Not Required
-      AccelerationStatus: Enabled | Suspended
+      AccelerationConfiguration: Enabled | Suspended
       # Not Required
       AccessControl: private | public-read | public-read-write | aws-exec-read | authenticated-read | bucket-owner-read | bucket-owner-full-control | log-delivery-write
       # Not Required
