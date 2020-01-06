@@ -6,6 +6,7 @@ class S3_CF:
     def __init__(self, payload):
         self.payload = payload
         self.template = {}
+        self.response = {}
         self.S3_BUCKET_PROPERTIES = [
             "AccelerationConfiguration",
             "AccessContol",
@@ -26,7 +27,7 @@ class S3_CF:
             "WebsiteCOnfigration"
         ]
         self.construct_template()
-    
+
     def construct_tags(self, tags):
         """ Method that returns cloud formation friendly tags"""
         cf_tags = []
@@ -46,6 +47,8 @@ class S3_CF:
             self.get_access_control(arg)
         elif arg == "AnalyticsConfiguration":
             self.get_analytics_configuration(arg)
+        elif arg == "BucketEncryption":
+            self.get_bucket_encryption(arg)
 
     def construct_template(self):
         """ Method that constructs IAC template from payload """
@@ -81,19 +84,56 @@ class S3_CF:
     def get_analytics_configuration(self, arg):
         """ Method that checks analytics configuration from payload """
         template = {}
+        dest = {}
+        analytics_properties = ["Id", "Prefix", "Destination", "TagFilters"]
         bucket_property = self.payload[arg]
         if isinstance(bucket_property, dict):
-            if "Id" in bucket_property:
-                template['Id'] = bucket_property['Id']
-            if "Prefix" in bucket_property:
-                template['Prefix'] = bucket_property['Prefix']
-            if "Destination" in bucket_property:
-                print("do something")
-            if "TagFilters" in bucket_property:
-                template['TagFilters'] = self.construct_tags(
-                    bucket_property['TagFilters'])
-        self.template[arg] = template
-                
+            for prop in bucket_property:
+                if prop in analytics_properties:
+                    if prop == "Destination":
+                        if "BucketAccountId" in bucket_property[prop]:
+                            dest['BucketAccountId'] = \
+                                bucket_property[prop]['BucketAccountId']
+                        if "Prefix" in bucket_property[prop]:
+                            dest['Prefix'] = bucket_property[prop]['Prefix']
+                        if "BucketArn" in bucket_property[prop]:
+                            dest['BucketArn'] = \
+                                bucket_property[prop]['BucketArn']
+                            dest['Format'] = "CSV"
+                            template['StorageClassAnalysis'] = {
+                                "DataExport": dest,
+                                "OutputSchemaVersion": "V_1"
+                            }
+                    elif prop == "TagFilters":
+                        template[prop] = self.construct_tags(
+                            bucket_property[prop]
+                        )
+                    else:
+                        template[prop] = bucket_property[prop]
+        if "StorageClassAnalysis" in template:
+            self.template[arg] = template
+
+    def get_bucket_encryption(self, arg):
+        """ Method that check bucket encryption from payload """
+        encryption = {}
+        bucket_property = self.payload[arg]
+        if isinstance(bucket_property, dict):
+            if "SSEAlgorithm" in bucket_property:
+                if bucket_property['SSEAlgorithm'] == "aws:kms":
+                    if "KMSMasterKeyID" in bucket_property:
+                        encryption = {
+                            "SSEAlgorithm": bucket_property["SSEAlgorithm"],
+                            "KMSMasterKeyID": bucket_property['KMSMasterKeyID'] 
+                        }
+                elif bucket_property['SSEAlgorithm'] == "AES256":
+                    encryption = {
+                        "SSEAlgorithm": bucket_property["SSEAlgorithm"]}
+        if "SSEAlgorithm" in encryption:
+            self.template[arg] = {
+                "ServerSideEncryptionConfiguration": {
+                    "ServerSideEncryptionByDefault": encryption
+                }
+            }
 
     def get_iac_template(self):
         """ Method that returns iac template from configuration options """
@@ -104,7 +144,9 @@ def main():
         "AnalyticsConfiguration": {
             "Id": "test",
             "Prefix": "test",
-            "Destination": "test",
+            "Destination": {
+                "BucketArn": "testarn"
+            },
             "TagFilters": [
                 {
                     "temp": "temp"
@@ -113,6 +155,10 @@ def main():
                     "temp1": "test"
                 }
             ]
+        },
+        "BucketEncryption": {
+            "SSEAlgorithm": "aws:kms",
+            "KMSMasterKeyID": "testarn"
         }
     }
     test = S3_CF(payload)
