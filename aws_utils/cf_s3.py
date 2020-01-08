@@ -114,7 +114,7 @@ class S3_CF:
             self.template[arg] = template
 
     def get_bucket_encryption(self, arg):
-        """ Method that check bucket encryption from payload """
+        """ Method that checks bucket encryption from payload """
         encryption = {}
         bucket_property = self.payload[arg]
         if isinstance(bucket_property, dict):
@@ -134,6 +134,17 @@ class S3_CF:
                     "ServerSideEncryptionByDefault": encryption
                 }
             }
+    
+    def get_cors_configuration(self, arg):
+        """ Method that checks cors configuration from payload """
+        corsrules = []
+        bucket_property = self.payload[arg]
+        for configuration in bucket_property:
+            corsrule = {}
+            for prop in configuration:
+                if "AllowedHeaders" in prop:
+                    corsrule['AllowedHeaders'] = prop['AllowedHeaders']
+
 
     def get_iac_template(self):
         """ Method that returns iac template from configuration options """
