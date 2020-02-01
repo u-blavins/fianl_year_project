@@ -8,7 +8,7 @@ class S3_CF:
         self.template = {}
         self.response = {}
         self.S3_BUCKET_PROPERTIES = [
-            "AccelerationConfiguration",
+            "AccelerateConfiguration",
             "AccessContol",
             "AnalyticsConfiguration",
             "BucketEncryption",
@@ -29,7 +29,7 @@ class S3_CF:
         self.construct_template()
 
     def construct_tags(self, tags):
-        """ Method that returns cloud formation friendly tags"""
+        """ Method that returns cloud formation friendly tags """
         cf_tags = []
         for tag in tags:
             temp={}
@@ -41,14 +41,18 @@ class S3_CF:
 
     def method_handler(self, arg):
         """ Method that handles different method calls """
-        if arg == "AccelerationConfiguration":
+        if arg == "AccelerateConfiguration":
             self.get_acceleration_config(arg)
-        elif arg == "AccessControl":
+        if arg == "AccessControl":
             self.get_access_control(arg)
-        elif arg == "AnalyticsConfiguration":
+        if arg == "AnalyticsConfiguration":
             self.get_analytics_configuration(arg)
-        elif arg == "BucketEncryption":
+        if arg == "BucketEncryption":
             self.get_bucket_encryption(arg)
+        if arg == "CorsConfiguration":
+            self.get_cors_configuration(arg)
+        if arg == "VersionConfiguration":
+            self.get_version_configuration(arg)
 
     def construct_template(self):
         """ Method that constructs IAC template from payload """
@@ -66,7 +70,7 @@ class S3_CF:
         if isinstance(bucket_property, str):
             if bucket_property in accepted_options:
                 self.template[arg] = {
-                    arg: bucket_property
+                        "AccelerationStatus": bucket_property
                     }
 
     def get_access_control(self, arg):
@@ -138,13 +142,76 @@ class S3_CF:
     def get_cors_configuration(self, arg):
         """ Method that checks cors configuration from payload """
         corsrules = []
+        allowed_methods = ['GET', 'PUT', 'HEAD', 'POST', 'DELTE']
         bucket_property = self.payload[arg]
         for configuration in bucket_property:
             corsrule = {}
-            for prop in configuration:
-                if "AllowedHeaders" in prop:
-                    corsrule['AllowedHeaders'] = prop['AllowedHeaders']
+            if "AllowedHeaders" in configuration:
+                if isinstance(configuration['AllowedHeaders'], list):
+                    corsrule['AllowedHeaders'] = configuration['AllowedHeaders']
+            if "AllowedMethods" in configuration:
+                methods = []
+                for method in configuration['AllowedMethods']:
+                    if method in allowed_methods:
+                        methods.append(method)
+                corsrule['AllowedMethods'] = methods
+            if "AllowedOrigins" in configuration:
+                if isinstance(configuration['AllowedOrigins'], list):
+                    corsrule['AllowedOrigins'] = configuration['AllowedOrigins']
+            if "ExposedHeaders" in configuration:
+                if isinstance(configuration['ExposedHeaders'], list):
+                    corsule['ExposedHeaders'] = configuration['ExposedHeaders']
+            if "Id" in configuration:
+                if configuration["Id"] != "":
+                    corsrule['Id'] = configuration['Id']
+            if "MaxAge" in configuration:
+                if isinstance(configuration['MaxAge'], int):
+                    corsrule['MaxAge'] = configuration['MaxAge']
+            if ("AllowedMethods" in corsrule) and ("AllowedOrigins" in corsrule):
+                corsrules.append(corsrule)
+        self.template[arg] = {
+            "CorsRules": corsrules
+        }
 
+    def get_inventory_configuration(self, arg):
+        """ Method that checks inventory configuration from payload """
+        fields = [
+            "Size", "LastModifiedDate", "StorageClass", "ETag", "IsMultiPartUpload",
+            "ReplicationStatus", "EncryptionStatus", "ObjectLockRetainUntilDate",
+            "ObjectLockMode", "ObjectLockLegalHoldStatus", "IntelligentTieringAccessTier"
+        ]
+        inventory_configurations = []
+        bucket_property = self.payload[arg]
+        for configuration in bucket_property:
+            invetory = {}
+            if "Destination" in configuration:
+                dest = configuration['Destination']
+                destination = {}
+                if "BucketAccountId" in dest:
+                    destination['BucketAccountId'] = dest['BucketAccountId']
+                if "Prefix" in dest:
+                    destination['Prefix'] = dest['Prefix']
+                if "BucketArn" in dest:
+                    destination['BucketArn'] = dest['BucketArn']
+                    inventory['Destination'] = destination
+            if "Enabled" in configuration:
+                if configuration['Enabled'] in ['True', 'False']:
+                    inventory['Enabled'] = configuration['Enabled']
+            if "Id" in configuration:
+                inventory['Id'] = configuration['Id']
+            if "IncludeObjectVersions" in configuration:
+                if configuration['IncludeObjectVersions'] in ['All', 'Current']:
+                    inventory['IncludeObjectVersions'] = configuration['IncludeObjectVersions']
+            if "OptionalFields" in configuration:
+                fields = configuration['OptionalFields']
+
+
+    
+    def get_version_configuration(self, arg):
+        """ Method that checks version configuration from payload """
+        bucket_property =  self.payload[arg]
+        if bucket_property in ['Enabled', 'Suspended']:
+            self.template[arg] = bucket_property
 
     def get_iac_template(self):
         """ Method that returns iac template from configuration options """
@@ -152,6 +219,7 @@ class S3_CF:
 
 def main():
     payload = {
+        "AccelerateConfiguration": "Enabled",
         "AnalyticsConfiguration": {
             "Id": "test",
             "Prefix": "test",
@@ -170,7 +238,43 @@ def main():
         "BucketEncryption": {
             "SSEAlgorithm": "aws:kms",
             "KMSMasterKeyID": "testarn"
-        }
+        },
+        "CorsConfiguration": [
+            {
+                "AllowedHeaders": [
+                    'test',
+                    'test1'
+                ],
+                "AllowedMethods": [
+                    'GET',
+                    'POST',
+                    'DELETE'
+                ],
+                "AllowedOrigins": [
+                    'testorigin',
+                    'testorigin1'
+                ],
+                "ExposedOrigins": [
+                    'testexpheaders',
+                    'testexpheaders1'
+                ],
+                "Id": 'testid',
+                "MaxAge": 343
+            },
+            {
+                "AllowedMethods": [
+                    "GET",
+                    "TEST"
+                ],
+                "AllowedOrigins": [
+                    "testorigins"
+                ]
+            },
+            {
+                "AllowedMethods": "GET"
+            }
+        ],
+        "VersionConfiguration": "Enabled"
     }
     test = S3_CF(payload)
     print(json.dumps(test.get_iac_template(), indent=2))
