@@ -4,7 +4,7 @@
       "Service": "s3",
       "Bucket": {
         "BucketName": "test-bucket",
-        "AccelerationStatus": "Enabled | Suspended",
+        "AccelerateConfiguration": "Enabled | Suspended",
         "AccessControl": "private | public-read | public-read-write | aws-exec-read | authenticated-read | bucket-owner-read | bucket-owner-full-control | log-delivery-write",
         "AnalyticsConfiguration": {
           "Id": "analytic-config-test",
