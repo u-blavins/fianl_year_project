@@ -53,6 +53,10 @@ class S3_CF:
             self.get_cors_configuration(arg)
         if arg == "VersionConfiguration":
             self.get_version_configuration(arg)
+        if arg == "InventoryConfigurations":
+            self.get_inventory_configuration(arg)
+        if arg == "LifecycleConfiguration":
+            self.get_lifecycle_configuration(arg)
 
     def construct_template(self):
         """ Method that constructs IAC template from payload """
@@ -175,15 +179,16 @@ class S3_CF:
 
     def get_inventory_configuration(self, arg):
         """ Method that checks inventory configuration from payload """
-        fields = [
+        valid_fields = [
             "Size", "LastModifiedDate", "StorageClass", "ETag", "IsMultiPartUpload",
             "ReplicationStatus", "EncryptionStatus", "ObjectLockRetainUntilDate",
             "ObjectLockMode", "ObjectLockLegalHoldStatus", "IntelligentTieringAccessTier"
         ]
         inventory_configurations = []
         bucket_property = self.payload[arg]
+        # print(json.dumps(bucket_property, indent=4))
         for configuration in bucket_property:
-            invetory = {}
+            inventory = {}
             if "Destination" in configuration:
                 dest = configuration['Destination']
                 destination = {}
@@ -194,18 +199,54 @@ class S3_CF:
                 if "BucketArn" in dest:
                     destination['BucketArn'] = dest['BucketArn']
                     inventory['Destination'] = destination
+            if "OptionalFields" in configuration:
+                opt_fields = []
+                fields = configuration['OptionalFields']
+                for field in fields:
+                    if field in valid_fields:
+                        opt_fields.append(field)
+                if len(opt_fields) != 0:
+                    inventory['OptionalFields'] = opt_fields
+            if "Prefix" in configuration:
+                inventory['Prefix'] = configuration['Prefix']
             if "Enabled" in configuration:
                 if configuration['Enabled'] in ['True', 'False']:
                     inventory['Enabled'] = configuration['Enabled']
             if "Id" in configuration:
                 inventory['Id'] = configuration['Id']
-            if "IncludeObjectVersions" in configuration:
-                if configuration['IncludeObjectVersions'] in ['All', 'Current']:
-                    inventory['IncludeObjectVersions'] = configuration['IncludeObjectVersions']
-            if "OptionalFields" in configuration:
-                fields = configuration['OptionalFields']
+            if "IncludedObjectVersions" in configuration:
+                if configuration['IncludedObjectVersions'] in ['All', 'Current']:
+                    inventory['IncludedObjectVersions'] = configuration['IncludedObjectVersions']
+            if "ScheduledFrequency" in configuration:
+                if configuration['ScheduledFrequency'] in ['Daily', 'Weekly']:
+                    inventory['ScheduledFrequency'] = configuration['ScheduledFrequency']
+            if set(['Enabled', 'Id', 'IncludedObjectVersions', 'ScheduledFrequency']).issubset(set(inventory.keys())):
+                inventory_configurations.append(inventory)
+        if len(inventory_configurations) != 0:
+            self.template[arg] = inventory_configurations
 
-
+    def get_lifecycle_configration(self, arg):
+        """ Method that checks lifecycle configuration from payload """
+        bucket_property = self.payload[arg]
+        optional_properties = [
+            'AbortIncompleteMultipartUpload', 'ExpirationDate', 'ExpirationInDays',
+            'Noncurrent'
+        ]
+        for configuration in bucket_property:
+            lifecycle = {}
+            if 'AbortIncompleteMultipartUpload' in configuration:
+                print("Do something")
+            if "Id" in configuration:
+                lifecycle['Id'] = configuration['Id']
+            if "Prefix" in configuration:
+                lifecycle['Prefix'] = configuration['Prefix']
+            if "TagFilters" in configuration:
+                lifecycle['TagFilters'] = self.construct_tags(
+                    configuration['TagFilters']
+                )
+            if "Status" in configuration:
+                if configuration['Status'] in ['Enabled', 'Disabled']:
+                    lifecycle['Status'] = configuration['Status']
     
     def get_version_configuration(self, arg):
         """ Method that checks version configuration from payload """
@@ -274,7 +315,24 @@ def main():
                 "AllowedMethods": "GET"
             }
         ],
-        "VersionConfiguration": "Enabled"
+        "VersionConfiguration": "Enabled",
+        "InventoryConfigurations": [
+            {
+                "Destination": {
+                    "BucketAccountId": 'test_account',
+                    "BucketArn": "test_bucket_arn",
+                    "Prefix": "~"
+                }, 
+                "Enabled": "True",
+                "Id": "InventoryConfiguartionId",
+                "IncludedObjectVersions": "All",
+                "OptionalFields": [
+                    "Size", "LastModifiedDate"
+                ],
+                "Prefix": "~",
+                "ScheduledFrequency": "Daily"
+            }
+        ]
     }
     test = S3_CF(payload)
     print(json.dumps(test.get_iac_template(), indent=2))

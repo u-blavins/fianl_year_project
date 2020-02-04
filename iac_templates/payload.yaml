@@ -99,10 +99,9 @@ Resources:
           # Required
           Status: Enabled | Disabled
           # Not Required
-          Tags:
+          TagFilters:
             # Required
-            - Key: key
-              Value: value
+            - Key: value
       # Not Required
       LoggingConfiguration:
         # Not Required
