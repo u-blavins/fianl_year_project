@@ -3,3 +3,4 @@ pyyaml
 pytest
 mock
 pytest-cov
+flask

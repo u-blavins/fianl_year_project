@@ -258,83 +258,83 @@ class S3_CF:
         """ Method that returns iac template from configuration options """
         return self.template
 
-def main():
-    payload = {
-        "AccelerateConfiguration": "Enabled",
-        "AnalyticsConfiguration": {
-            "Id": "test",
-            "Prefix": "test",
-            "Destination": {
-                "BucketArn": "testarn"
-            },
-            "TagFilters": [
-                {
-                    "temp": "temp"
-                },
-                {
-                    "temp1": "test"
-                }
-            ]
-        },
-        "BucketEncryption": {
-            "SSEAlgorithm": "aws:kms",
-            "KMSMasterKeyID": "testarn"
-        },
-        "CorsConfiguration": [
-            {
-                "AllowedHeaders": [
-                    'test',
-                    'test1'
-                ],
-                "AllowedMethods": [
-                    'GET',
-                    'POST',
-                    'DELETE'
-                ],
-                "AllowedOrigins": [
-                    'testorigin',
-                    'testorigin1'
-                ],
-                "ExposedOrigins": [
-                    'testexpheaders',
-                    'testexpheaders1'
-                ],
-                "Id": 'testid',
-                "MaxAge": 343
-            },
-            {
-                "AllowedMethods": [
-                    "GET",
-                    "TEST"
-                ],
-                "AllowedOrigins": [
-                    "testorigins"
-                ]
-            },
-            {
-                "AllowedMethods": "GET"
-            }
-        ],
-        "VersionConfiguration": "Enabled",
-        "InventoryConfigurations": [
-            {
-                "Destination": {
-                    "BucketAccountId": 'test_account',
-                    "BucketArn": "test_bucket_arn",
-                    "Prefix": "~"
-                }, 
-                "Enabled": "True",
-                "Id": "InventoryConfiguartionId",
-                "IncludedObjectVersions": "All",
-                "OptionalFields": [
-                    "Size", "LastModifiedDate"
-                ],
-                "Prefix": "~",
-                "ScheduledFrequency": "Daily"
-            }
-        ]
-    }
-    test = S3_CF(payload)
-    print(json.dumps(test.get_iac_template(), indent=2))
+# def main():
+    # payload = {
+    #     "AccelerateConfiguration": "Enabled",
+    #     "AnalyticsConfiguration": {
+    #         "Id": "test",
+    #         "Prefix": "test",
+    #         "Destination": {
+    #             "BucketArn": "testarn"
+    #         },
+    #         "TagFilters": [
+    #             {
+    #                 "temp": "temp"
+    #             },
+    #             {
+    #                 "temp1": "test"
+    #             }
+    #         ]
+    #     },
+    #     "BucketEncryption": {
+    #         "SSEAlgorithm": "aws:kms",
+    #         "KMSMasterKeyID": "testarn"
+    #     },
+    #     "CorsConfiguration": [
+    #         {
+    #             "AllowedHeaders": [
+    #                 'test',
+    #                 'test1'
+    #             ],
+    #             "AllowedMethods": [
+    #                 'GET',
+    #                 'POST',
+    #                 'DELETE'
+    #             ],
+    #             "AllowedOrigins": [
+    #                 'testorigin',
+    #                 'testorigin1'
+    #             ],
+    #             "ExposedOrigins": [
+    #                 'testexpheaders',
+    #                 'testexpheaders1'
+    #             ],
+    #             "Id": 'testid',
+    #             "MaxAge": 343
+    #         },
+    #         {
+    #             "AllowedMethods": [
+    #                 "GET",
+    #                 "TEST"
+    #             ],
+    #             "AllowedOrigins": [
+    #                 "testorigins"
+    #             ]
+    #         },
+    #         {
+    #             "AllowedMethods": "GET"
+    #         }
+    #     ],
+    #     "VersionConfiguration": "Enabled",
+    #     "InventoryConfigurations": [
+    #         {
+    #             "Destination": {
+    #                 "BucketAccountId": 'test_account',
+    #                 "BucketArn": "test_bucket_arn",
+    #                 "Prefix": "~"
+    #             }, 
+    #             "Enabled": "True",
+    #             "Id": "InventoryConfiguartionId",
+    #             "IncludedObjectVersions": "All",
+    #             "OptionalFields": [
+    #                 "Size", "LastModifiedDate"
+    #             ],
+    #             "Prefix": "~",
+    #             "ScheduledFrequency": "Daily"
+    #         }
+    #     ]
+    # }
+#     test = S3_CF(payload)
+#     print(json.dumps(test.get_iac_template(), indent=2))
     
-main()
+# main()
