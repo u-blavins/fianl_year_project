@@ -186,7 +186,6 @@ class S3_CF:
         ]
         inventory_configurations = []
         bucket_property = self.payload[arg]
-        # print(json.dumps(bucket_property, indent=4))
         for configuration in bucket_property:
             inventory = {}
             if "Destination" in configuration:
