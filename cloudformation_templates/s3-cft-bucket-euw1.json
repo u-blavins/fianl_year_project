@@ -1,0 +1,53 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "CloudFormation template for a CloudFormation buckets",
+    "Resources": {
+        "Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": "cft-bucket-euw1",
+                "BucketEncryption": {
+                    "ServerSideEncryptionConfiguration": [
+                        {
+                            "ServerSideEncryptionByDefault": {
+                                "SSEAlgorithm": "AES256"
+                            }
+                        }
+                    ]
+                },
+                "PublicAccessBlockConfiguration": {
+                    "BlockPublicAcls": "True",
+                    "BlockPublicPolicy": "True",
+                    "IgnorePublicAcls": "True",
+                    "RestrictPublicBuckets": "True"
+                },
+                "ReplicationConfiguration": {
+                    "Role": "arn:aws:iam::172463481696:role/iam-s3-cross-replication-role",
+                    "Rules": [
+                        {
+                            "Destination": {
+                                "Bucket": "arn:aws:s3:::cft-bucket-euw2"
+                            },
+                            "Id": "ReplicateCFTBucketEuw1",
+                            "Prefix": "",
+                            "Status": "Enabled"
+                        }
+                    ]
+                },
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                },
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "Usama Blavins"
+                    },
+                    {
+                        "Key": "Role",
+                        "Value": "CloudFormation Template Bucket for EU-WEST-1"
+                    }
+                ]
+            }
+        }
+    }
+}
