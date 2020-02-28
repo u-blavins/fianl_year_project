@@ -218,7 +218,7 @@ Resources:
             # Required
           - RedirectRules:
               # Not Required
-            - HostName: Name of host where requests are redirected
+              HostName: Name of host where requests are redirected
               # Not Required
               HttpRedirectCode: Http redirect code to use on response
               # Not Required

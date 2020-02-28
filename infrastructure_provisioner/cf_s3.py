@@ -24,7 +24,7 @@ class S3_CF:
             "ReplicationConfiguration",
             "Tags",
             "VersionConfiguration",
-            "WebsiteConfigration"
+            "WebsiteConfiguration"
         ]
         self.construct_template()
 
@@ -70,7 +70,7 @@ class S3_CF:
             self.get_replication_configuration(arg)
         if arg == "Tags":
             self.get_tags(arg)
-        if arg == "WebsiteConfigration":
+        if arg == "WebsiteConfiguration":
             self.get_website_configuration(arg)
 
     def construct_template(self):
@@ -527,34 +527,46 @@ class S3_CF:
                 website["RedirectAllRequestsTo"] = redirect
         if "RoutingRules" in bucket_property:
             rules = []
-            for rule in bucket_property['RoutingRules']
-
-
-
-
+            for rule in bucket_property['RoutingRules']:
+                routing_rule = {}
+                if "RedirectRules" in rule:
+                    redirect_rule = {}
+                    redirect = rule['RedirectRules']
+                    if "HostName" in redirect:
+                        redirect_rule['HostName'] = redirect['HostName']
+                    if "HttpRedirectCode" in redirect:
+                        redirect_rule['HttpRedirectCode'] = redirect['HttpRedirectCode']
+                    if "Protocol" in redirect:
+                        if redirect['Protocol'] in ['http', 'https']:
+                            redirect_rule['Protocol'] = redirect['Protocol']
+                    if "ReplaceKeyPrefixWith" in redirect:
+                        redirect_rule['ReplaceKeyPrefixWith'] = redirect['ReplaceKeyPrefixWith']
+                    if "ReplaceKeyWith" in redirect:
+                        redirect_rule['ReplaceKeyWith'] = redirect['ReplaceKeyWith']
+                    if len(redirect_rule.keys()) != 0:
+                        routing_rule['RedirectRules'] = redirect_rule
+                if "RoutingRuleCondition" in rule:
+                    condition = rule['RoutingRuleCondition']
+                    routing_condition = {}
+                    if "HttpErrorCodeReturnsEquals" in condition:
+                        routing_condition['HttpErrorCodeReturnsEquals'] = condition['HttpErrorCodeReturnsEquals']
+                    if "KeyPrefixEquals" in condition:
+                        routing_condition['KeyPrefixEquals'] = condition['KeyPrefixEquals']
+                    if len(routing_condition.keys()) != 0:
+                        routing_rule['RoutingRuleCondition'] = routing_condition
+                if "RedirectRules" in routing_rule or "RoutingRuleCondition" in routing_rule:
+                    rules.append(routing_rule)
+            if len(rules) != 0:
+                website['RedirectRules'] = rules
+        if len(website.keys()) != 0:
+            self.template['WebsiteConfiguration'] = website
+                    
     def get_iac_template(self):
         """ Method that returns iac template from configuration options """
         return self.template
 
 def main():
-    payload = {
-        'ReplicationConfiguration': {
-            'Role': 'test-role',
-            'Rules': [
-                {
-                    'Destination': {
-                        'Owner': 'test-owner',
-                        'Account': 'test-account',
-                        'Bucket': 'test-bucket',
-                        'ReplicaKmsKeyID': 'kms-key'
-                    },
-                    'Id': 'TestRule',
-                    'SseKmsEncryptedObjects': 'Disabled',
-                    'Status': 'Enabled'
-                }
-            ]
-        }
-    }
+    payload = {}
     test = S3_CF(payload)
     print(json.dumps(test.get_iac_template(), indent=4))
 
