@@ -31,11 +31,10 @@ class S3_CF:
     def construct_tags(self, tags):
         """ Method that returns cloud formation friendly tags """
         cf_tags = []
-        for tag in tags:
+        for key in tags.keys():
             temp={}
-            key = list(tag.keys())[0]
             temp['Key']   = key
-            temp['Value'] = tag[key]
+            temp['Value'] = tags[key]
             cf_tags.append(temp)
         return cf_tags
 
@@ -57,6 +56,12 @@ class S3_CF:
             self.get_inventory_configuration(arg)
         if arg == "LifecycleConfiguration":
             self.get_lifecycle_configuration(arg)
+        if arg == "LoggingConfiguration":
+            self.get_logging_configuration(arg)
+        if arg == "MetricsConfigurations":
+            self.get_metrics_configuration(arg)
+        if arg == "NotificationConfigrations":
+            self.get_notification_configuration(arg)
 
     def construct_template(self):
         """ Method that constructs IAC template from payload """
@@ -265,10 +270,12 @@ class S3_CF:
                                     'StorageClass': transition['StorageClass'],
                                     'TransitionInDays': transition['TransitionInDays']
                                 })
-            if 'Transition' in configuration:
+                if len(non_curr) != 0:
+                    lifecycle['NoncurrentVersionTransitions'] = non_curr
+            if 'Transitions' in configuration:
                 transitions = []
-                if isinstance(configuration['Transition'], list):
-                    for transition in configuration['Transition']:
+                if isinstance(configuration['Transitions'], list):
+                    for transition in configuration['Transitions']:
                         trans = {}
                         if "StorageClass" in transition:
                             if transition['StorageClass'] in storage_class:
@@ -280,6 +287,8 @@ class S3_CF:
                         if 'StorageClass' in trans:
                             if 'TransitionInDays' in trans or 'TransitionDate' in trans:
                                 transitions.append(trans)
+                if len(transitions) != 0:
+                    lifecycle['Transitions'] = transitions
             if "Id" in configuration:
                 lifecycle['Id'] = configuration['Id']
             if "Prefix" in configuration:
@@ -298,16 +307,111 @@ class S3_CF:
                     'NoncurrentVersionTransitions' in lifecycle or \
                     'Transitions' in lifecycle:
                     lifecycles.append(lifecycle)
-        self.template[arg] = {
-            'Rules': lifecycles
-        }
+        if len(lifecycles) != 0:
+            self.template[arg] = {'Rules': lifecycles}
     
     def get_version_configuration(self, arg):
         """ Method that checks version configuration from payload """
-        bucket_property =  self.payload[arg]
+        bucket_property = self.payload[arg]
         if bucket_property in ['Enabled', 'Suspended']:
             self.template[arg] = bucket_property
+
+    def get_logging_configuration(self, arg):
+        """ Method that checks logging configuration from payload """
+        logging = {}
+        bucket_property = self.payload[arg]
+        if 'LogFilePrefix' in bucket_property:
+            logging['LogFilePrefix'] = bucket_property['LogFilePrefix']
+        if 'DestinationBucketName' in bucket_property:
+            logging['DestinationBucketName'] = bucket_property['DestinationBucketName']
+        if len(logging.keys()) != 0:
+            self.template[arg] = logging
+
+    def get_metrics_configuration(self, arg):
+        """ Method that checks metric configuration from payload """
+        metrics = []
+        bucket_property = self.payload[arg]
+        for configuration in bucket_property:
+            metric = {}
+            if 'Prefix' in configuration:
+                metric['Prefix'] = configuration['Prefix']
+            if 'TagFilters' in configuration:
+                metric['TagFilters'] = self.construct_tags(
+                    configuration['TagFilters'])
+            if 'Id' in configuration:
+                metric['Id'] = configuration['Id']
+                metrics.append(metric)
+        if len(metrics) != 0:
+            self.template[arg] = metrics
+
+    @staticmethod
+    def get_notification(notification, config):
+        """ Method that returns notification configations """
+        notifications = []
+        for configuration in conifg:
+            notification = {}
+            if 'Event' in configuration:
+                notification['Event'] = configuration['Event']
+            if 'Filter' in configuration:
+                filters = []
+                for filter in configuration['Filter']:
+                    if 'Name' in filter and 'Value' in filter:
+                        if filter['Name'] in ['prefix', 'suffix']:
+                            filters.append(
+                                {
+                                    'Name': filter['Name'],
+                                    'Value': filter['Value']
+                                }
+                            )
+
+
+    def get_notification_configation(self, arg):
+        """ Method that checks notification configuration from payload """
+        notification = {}
+        bucket_property = self.payload[arg]
+        if 'LambdaConfigurations' in bucket_property:
+            config = self.get_notification(
+                'LambdaConfigurations', bucket_property['LambdaConfigurations'])
+            if len(config) != 0:
+                notification['LambdaConfigurations'] = config
+        if 'QueueConfigurations' in bucket_property:
+            config = self.get_notification(
+                'QueueConfigurations', bucket_property['QueueConfigurations'])
+            if len(config) != 0:
+                notification['QueueConfigurations'] = config
+        if 'TopicConfigurations' in bucket_property:
+            config = self.get_notification(
+                'TopicConfigurations', bucket_property['TopicConfigurations'])
+            if len(config) != 0:
+                notification['TopicConfigurations'] = config 
+        if len(notification.keys()) != 0:
+            self.template[arg] = notification 
 
     def get_iac_template(self):
         """ Method that returns iac template from configuration options """
         return self.template
+
+def main():
+    payload = {
+        'LoggingConfiguration': {
+            'DestinationBucketName': 'test',
+            'LogFilePrefix': 'test2'
+        },
+        'MetricsConfigurations': [
+            {
+                "Id": "test",
+                "Prefix": "~"
+            },
+            {
+                "TagFilters": {
+                    'key': 'value'
+                },
+                "Prefix": "~",
+                "Id": "test"
+            }
+        ]
+    }
+    test = S3_CF(payload)
+    print(json.dumps(test.get_iac_template(), indent=4))
+
+main()

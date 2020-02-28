@@ -115,10 +115,9 @@ Resources:
           # Not Required
           Prefix: ~
           # Not Required
-          Tags:
+          TagFilters:
             # Required
-            - Key: key
-              Value: value
+            - Key: value
       # Not Required
       NotificationConfiguration:
         # Not Required
