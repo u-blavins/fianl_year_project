@@ -60,8 +60,12 @@ class S3_CF:
             self.get_logging_configuration(arg)
         if arg == "MetricsConfigurations":
             self.get_metrics_configuration(arg)
-        if arg == "NotificationConfigrations":
+        if arg == "NotificationConfiguration":
             self.get_notification_configuration(arg)
+        if arg == "ObjectLockConfiguration":
+            self.get_object_lock_configuration(arg)
+        if arg == "Tags":
+            self.get_tags(arg)
 
     def construct_template(self):
         """ Method that constructs IAC template from payload """
@@ -345,47 +349,74 @@ class S3_CF:
             self.template[arg] = metrics
 
     @staticmethod
-    def get_notification(notification, config):
+    def get_notification(config):
         """ Method that returns notification configations """
         notifications = []
-        for configuration in conifg:
+        for configuration in config:
             notification = {}
             if 'Event' in configuration:
                 notification['Event'] = configuration['Event']
             if 'Filter' in configuration:
                 filters = []
-                for filter in configuration['Filter']:
-                    if 'Name' in filter and 'Value' in filter:
-                        if filter['Name'] in ['prefix', 'suffix']:
+                for _filter in configuration['Filter']:
+                    if 'Name' in _filter and 'Value' in _filter:
+                        if _filter['Name'] in ['prefix', 'suffix']:
                             filters.append(
                                 {
-                                    'Name': filter['Name'],
-                                    'Value': filter['Value']
-                                }
-                            )
+                                    'Name': _filter['Name'],
+                                    'Value': _filter['Value']
+                                })
+                if len(filters) != 0:
+                    notification['Filter'] = { 'S3Key': {'Rules': filters}}
+            if "Function" in configuration:
+                notification['Function'] = configuration['Function']
+            if "Queue" in configuration:
+                notification['Queue'] = configuration['Queue']
+            if "Topic" in configuration:
+                notification['Topic'] = configuration['Topic']
+            if 'Event' in notification and 'Filter' in notification:
+                if 'Function' in notification or 'Queue' in notification or \
+                    'Topic' in configuration:
+                    notifications.append(notification)
+        return notifications
 
-
-    def get_notification_configation(self, arg):
+    def get_notification_configuration(self, arg):
         """ Method that checks notification configuration from payload """
         notification = {}
         bucket_property = self.payload[arg]
         if 'LambdaConfigurations' in bucket_property:
-            config = self.get_notification(
-                'LambdaConfigurations', bucket_property['LambdaConfigurations'])
+            config = self.get_notification(bucket_property['LambdaConfigurations'])
             if len(config) != 0:
                 notification['LambdaConfigurations'] = config
         if 'QueueConfigurations' in bucket_property:
-            config = self.get_notification(
-                'QueueConfigurations', bucket_property['QueueConfigurations'])
+            config = self.get_notification(bucket_property['QueueConfigurations'])
             if len(config) != 0:
                 notification['QueueConfigurations'] = config
         if 'TopicConfigurations' in bucket_property:
-            config = self.get_notification(
-                'TopicConfigurations', bucket_property['TopicConfigurations'])
+            config = self.get_notification(bucket_property['TopicConfigurations'])
             if len(config) != 0:
                 notification['TopicConfigurations'] = config 
         if len(notification.keys()) != 0:
             self.template[arg] = notification 
+    
+    def get_object_lock_configuration(self, arg):
+        """ Method that checks object lock configuration from payload """
+        object_lock = {}
+        mode = ['COMPLIANCE', 'GOVERNANCE']
+        bucket_property = self.payload[arg]
+        if 'ObjectLockEnabled' in bucket_property:
+            if bucket['ObjectLockEnabled'] == 'Enabled':
+                object_lock['ObjectLockEnabled'] = 'Enabled'
+        
+    
+    def get_tags(self, arg):
+        """ Method that checks tags from payload """
+        tags = []
+        bucket_property = self.payload[arg]
+        tags = self.construct_tags(bucket_property)
+        if len(tags) != 0:
+            self.template[arg] = tags
+        
 
     def get_iac_template(self):
         """ Method that returns iac template from configuration options """
@@ -409,7 +440,51 @@ def main():
                 "Prefix": "~",
                 "Id": "test"
             }
-        ]
+        ],
+        'NotificationConfiguration': {
+            'LambdaConfigurations': [
+                {
+                    'Event': 'test',
+                    'Filter': [
+                        {
+                            'Name': 'test',
+                            'Value': 'test'
+                        },
+                        {
+                            'Name': 'prefix',
+                            'Value': 'test'
+                        }
+                    ],
+                    'Function': 'test'
+                }
+            ],
+            'TopicConfigurations': [
+                {
+                    'Event': 'test',
+                    'Filter': [
+                        {
+                            'Name': 'test',
+                            'Value': 'test'
+                        },
+                        {
+                            'Name': 'prefix',
+                            'Value': 'test'
+                        }
+                    ],
+                    'Topic': 'test'
+                }
+            ]
+        },
+        'ObjectLockConfiguration': {
+            'ObjectLockEnabled': 'Enabled',
+            'DefaultRetention': {
+                'Days': 34
+            }
+        },
+        'Tags': {
+            'key': 'value',
+            'test': 'test'
+        }
     }
     test = S3_CF(payload)
     print(json.dumps(test.get_iac_template(), indent=4))
