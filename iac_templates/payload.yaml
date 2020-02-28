@@ -192,7 +192,7 @@ Resources:
             # Required - empty signifies all objects replicated
             Prefix: Object key name prefix
             # Not Required
-            SseEncryptionEnabled: Enabled | Disabled
+            SseKmsEncryptionEnabled: Enabled | Disabled
             # Required
             Status: Enabled | Disabled
       # Required
@@ -204,9 +204,9 @@ Resources:
       # Not Required
       WebsiteConfiguration:
         # Not Required
-        Error: Name of error document
+        ErrorDocument: Name of error document
         # Not Required
-        Index: Name of index document
+        IndexDocument: Name of index document
         # Not Required
         RedirectAllRequestsTo:
           # Required

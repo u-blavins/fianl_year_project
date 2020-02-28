@@ -20,11 +20,11 @@ class S3_CF:
             "MetricsConfigurations",
             "NotificationConfiguration",
             "ObjectLockConfiguration",
-            "PublicAccessConfiguration",
+            "PublicAccessBlockConfiguration",
             "ReplicationConfiguration",
             "Tags",
             "VersionConfiguration",
-            "WebsiteCOnfigration"
+            "WebsiteConfigration"
         ]
         self.construct_template()
 
@@ -64,8 +64,14 @@ class S3_CF:
             self.get_notification_configuration(arg)
         if arg == "ObjectLockConfiguration":
             self.get_object_lock_configuration(arg)
+        if arg == "PublicAccessBlockConfiguration":
+            self.get_public_block_configuration(arg)
+        if arg == "ReplicationConfiguration":
+            self.get_replication_configuration(arg)
         if arg == "Tags":
             self.get_tags(arg)
+        if arg == "WebsiteConfigration":
+            self.get_website_configuration(arg)
 
     def construct_template(self):
         """ Method that constructs IAC template from payload """
@@ -405,10 +411,96 @@ class S3_CF:
         mode = ['COMPLIANCE', 'GOVERNANCE']
         bucket_property = self.payload[arg]
         if 'ObjectLockEnabled' in bucket_property:
-            if bucket['ObjectLockEnabled'] == 'Enabled':
+            if bucket_property['ObjectLockEnabled'] == 'Enabled':
                 object_lock['ObjectLockEnabled'] = 'Enabled'
+        if "DefaultRetention" in bucket_property:
+            retention = {}
+            if 'Days' in bucket_property['DefaultRetention']:
+                if isinstance(bucket_property['DefaultRetention']['Days'], int):
+                    retention['Days'] = bucket_property['DefaultRetention']['Days']
+            if 'Mode' in bucket_property['DefaultRetention']:
+                if bucket_property['DefaultRetention'] in ['COMPLIANCE', 'GOVERNANCE']:
+                    retention['Mode'] = bucket_property['DefaultRetention']['Mode']
+            if 'Years' in bucket_property['DefaultRetention']:
+                if isinstance(bucket_property['DefaultRetention']['Years'], int):
+                    retention['Years'] = bucket_property['DefaultRetention']['Years']
+            if len(retention.keys()) != 0:
+                object_lock['Rule'] = {'DefaultRetention': retention}
+        if len(object_lock.keys()) != 0:
+            if 'ObjectLockEnabled' in object_lock:
+                self.template['ObjectLockEnabled'] = True
+            self.template['ObjectLockConfiguration'] = object_lock
         
+    def get_public_block_configuration(self, arg):
+        """ Method that checks public access block configuration from payload """
+        bucket_property = self.payload[arg]
+        public_block = {}
+        public_access_block = [
+            'BlockPublicAcls', 'BlockPublicPolicy', 'IgnorePublicAcls', 'RestrictPublicBuckets']
+        for key in bucket_property.keys():
+            if key in public_access_block:
+                if isinstance(bucket_property[key], bool):
+                    public_block[key] = bucket_property[key]
+        if set(public_access_block).issubset(set(public_block.keys())):
+            self.template[arg] = public_block
     
+    def get_replication_configuration(self, arg):
+        """ Method that checks replication configuration from payload """
+        replication = {}
+        rules = []
+        storage_class = [
+            'DEEP_ARCHIVE', 'GLACIER', 'INTELLIGENT_TIERING', 'ONEZONE_IA', 'STANDARD_IA'
+        ]
+        bucket_property = self.payload[arg]
+        if "Role" in bucket_property:
+            replication['Role'] = bucket_property['Role']
+        if "Rules" in bucket_property:
+            rules = []
+            if isinstance(bucket_property['Rules'], list):
+                for rep_rule in bucket_property['Rules']:
+                    rule = {}
+                    if "Destination" in rep_rule:
+                        dest = {}
+                        dest_config = rep_rule['Destination']
+                        if "Owner" in dest_config and "Account" in dest_config:
+                            dest['AccessControlTranslation'] = {
+                                'Owner': dest_config['Owner']}
+                            dest['Account'] = dest_config['Account']
+                        if "ReplicaKmsKeyID" in dest_config:
+                            dest['EncryptionConfiguration'] = {
+                                'ReplicaKmsKeyID': dest_config['ReplicaKmsKeyID']}
+                        if "StorageClass" in dest_config:
+                            if rep_rule['StorageClass'] in storage_class:
+                                dest['StorageClass'] = dest_config['StorageClass']
+                        if "Bucket" in dest_config:
+                            dest['Bucket'] = dest_config['Bucket']
+                            rule['Destination'] = dest
+                    if "Id" in rep_rule:
+                        rule['Id'] = rep_rule['Id']
+                    if "Prefix" in rep_rule:
+                        rule['Prefix'] = rep_rule['Prefix']
+                    else:
+                        rule['Prefix'] = ''
+                    if "SseKmsEncryptionEnabled" in rep_rule:
+                        rule['SourceSelectionCriteria'] = {
+                            'SseKmsEncryptionEnabled': {
+                                'Status': rep_rule['SseKmsEncryptionEnabled']
+                            }}
+                    else:
+                        rule['SourceSelectionCriteria'] = {
+                            'SseKmsEncryptionEnabled': {
+                                'Status': 'Disabled'
+                            }}
+                    if 'Status' in rep_rule:
+                        if rep_rule['Status'] in ['Enabled', 'Suspended']:
+                            rule['Status'] = rep_rule['Status']
+                    if 'Status' in rule and 'Prefix' in rule and 'Destination' in rule:
+                        rules.append(rule)
+        if "Role" in replication and len(rules) != 0:
+            replication['Rules'] = rules
+            self.template['ReplicationConfiguration'] = replication
+    
+
     def get_tags(self, arg):
         """ Method that checks tags from payload """
         tags = []
@@ -416,7 +508,29 @@ class S3_CF:
         tags = self.construct_tags(bucket_property)
         if len(tags) != 0:
             self.template[arg] = tags
-        
+    
+    def get_website_configuration(self, arg):
+        """ Method that checks website configuration from payload """
+        website = {}
+        bucket_property = self.payload[arg]
+        if "ErrorDocument" in bucket_property:
+            website['ErrorDocument'] = bucket_property['ErrorDocument']
+        if "IndexDocument" in bucket_property:
+            website['IndexDocument'] = bucket_property['IndexDocument']
+        if "RedirectAllRequestsTo" in bucket_property:
+            redirect = {}
+            if "Protocol" in bucket_property["RedirectAllRequestsTo"]:
+                if bucket_property["RedirectAllRequestsTo"]["Protocol"] in ['http', 'https']:
+                    redirect['Protocol'] = bucket_property["RedirectAllRequestsTo"]["Protocol"]
+            if "Hostname" in bucket_property["RedirectAllRequestsTo"]:
+                redirect['Hostname'] = bucket_property["RedirectAllRequestsTo"]["Hostname"]
+                website["RedirectAllRequestsTo"] = redirect
+        if "RoutingRules" in bucket_property:
+            rules = []
+            for rule in bucket_property['RoutingRules']
+
+
+
 
     def get_iac_template(self):
         """ Method that returns iac template from configuration options """
@@ -424,66 +538,21 @@ class S3_CF:
 
 def main():
     payload = {
-        'LoggingConfiguration': {
-            'DestinationBucketName': 'test',
-            'LogFilePrefix': 'test2'
-        },
-        'MetricsConfigurations': [
-            {
-                "Id": "test",
-                "Prefix": "~"
-            },
-            {
-                "TagFilters": {
-                    'key': 'value'
-                },
-                "Prefix": "~",
-                "Id": "test"
-            }
-        ],
-        'NotificationConfiguration': {
-            'LambdaConfigurations': [
+        'ReplicationConfiguration': {
+            'Role': 'test-role',
+            'Rules': [
                 {
-                    'Event': 'test',
-                    'Filter': [
-                        {
-                            'Name': 'test',
-                            'Value': 'test'
-                        },
-                        {
-                            'Name': 'prefix',
-                            'Value': 'test'
-                        }
-                    ],
-                    'Function': 'test'
-                }
-            ],
-            'TopicConfigurations': [
-                {
-                    'Event': 'test',
-                    'Filter': [
-                        {
-                            'Name': 'test',
-                            'Value': 'test'
-                        },
-                        {
-                            'Name': 'prefix',
-                            'Value': 'test'
-                        }
-                    ],
-                    'Topic': 'test'
+                    'Destination': {
+                        'Owner': 'test-owner',
+                        'Account': 'test-account',
+                        'Bucket': 'test-bucket',
+                        'ReplicaKmsKeyID': 'kms-key'
+                    },
+                    'Id': 'TestRule',
+                    'SseKmsEncryptedObjects': 'Disabled',
+                    'Status': 'Enabled'
                 }
             ]
-        },
-        'ObjectLockConfiguration': {
-            'ObjectLockEnabled': 'Enabled',
-            'DefaultRetention': {
-                'Days': 34
-            }
-        },
-        'Tags': {
-            'key': 'value',
-            'test': 'test'
         }
     }
     test = S3_CF(payload)

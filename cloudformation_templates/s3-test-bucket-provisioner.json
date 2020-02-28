@@ -22,7 +22,13 @@
                     "RestrictPublicBuckets": "True"
                 },
                 "ObjectLockConfiguration": {
-                    "ObjectLockEnabled": "Enabled"
+                    "ObjectLockEnabled": "Enabled",
+                    "Rule": {
+                        "DefaultRetention": {
+                            "Mode": "GOVERNANCE",
+                            "Days": 1
+                        }
+                    }
                 },
                 "ObjectLockEnabled": true,
                 "VersioningConfiguration": {
