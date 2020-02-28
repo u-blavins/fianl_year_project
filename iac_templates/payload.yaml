@@ -84,14 +84,14 @@ Resources:
           ExpirationDate: Timestamp when objects deleted from S3 - ISO 8601
           ExpirationInDays: Integer days after creation when objects deleted
           NoncurrentVersionExpirationInDays: Integer same as current but for versioned objects
-          NoncurrentVersionTransistions:
+          NoncurrentVersionTransitions:
             - StorageClass: DEEP_ARCHIVE | GLACIER | INTELLIGENT_TIERING | ONEZONE_IA | STANDARD_IA
-              TransistionInDays: Integer days before S3 performs transistion to Storage Class
-          Transistions:
+              TransitionInDays: Integer days before S3 performs transistion to Storage Class
+          Transitions:
               # Either transistion date or days
             - StorageClass: DEEP_ARCHIVE | GLACIER | INTELLIGENT_TIERING | ONEZONE_IA | STANDARD_IA
               TransitionDate : Timestamp S3 performs transistion to Storage Clas,
-              TransistionInDays: Integer days before S3 performs transistion to Storage Class
+              TransitionInDays: Integer days before S3 performs transistion to Storage Class
           # Not Required
           Id: "LicecycleRuleId"
           # Not Required
@@ -164,7 +164,7 @@ Resources:
             Mode: COMPLIANCE | GOVERNANCE - retention mode GOV - object lock can be removed
             Years: Integer years for default retention
       # Not Required
-      PublicAccessConfiguration:
+      PublicAccessBlockConfiguration:
         # Not Required
         # All attributes stated will be set to true if present
         - BlockPublicAcls
@@ -201,7 +201,7 @@ Resources:
         # Required
         - Key: Value
       # Not Required
-      VersionConfiguration: Enabled | Suspended
+      VersioningConfiguration: Enabled | Suspended
       # Not Required
       WebsiteConfiguration:
         # Not Required

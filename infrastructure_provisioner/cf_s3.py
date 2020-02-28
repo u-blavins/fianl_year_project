@@ -224,28 +224,83 @@ class S3_CF:
         if len(inventory_configurations) != 0:
             self.template[arg] = inventory_configurations
 
-    def get_lifecycle_configration(self, arg):
+    def get_lifecycle_configuration(self, arg):
         """ Method that checks lifecycle configuration from payload """
         bucket_property = self.payload[arg]
+        storage_class = [
+            'DEEP_ARCHIVE', 'GLACIER', 'INTELLIGENT_TIERING', 'ONEZONE_IA', 'STANDARD_IA'
+        ]
         optional_properties = [
             'AbortIncompleteMultipartUpload', 'ExpirationDate', 'ExpirationInDays',
-            'Noncurrent'
+            'NoncurrentVersionExpirationInDays', 'NoncurrentVersionTransitions',
+            'Transitions'
         ]
+        lifecycles = []
         for configuration in bucket_property:
             lifecycle = {}
-            if 'AbortIncompleteMultipartUpload' in configuration:
-                print("Do something")
+            if "AbortIncompleteMultipartUpload" in configuration:
+                days = configuration['AbortIncompleteMultipartUpload']
+                if isinstance(days, int):
+                    lifecycle['AbortIncompleteMultipartUpload'] = {
+                        'DaysAfterInitiation': days }
+            if "ExpirationDate" in configuration:
+                lifecycle['ExpirationDate'] = configuration['ExpirationDate']
+            if "ExpirationInDays" in configuration:
+                expiration = configuration['ExpirationInDays']
+                if isinstance(expiration, int):
+                    lifecycle['ExpirationInDays'] = expiration
+            if "NoncurrentVersionExpirationInDays" in configuration:
+                expiration = configuration['NoncurrentVersionExpirationInDays']
+                if isinstance(expiration, int):
+                    lifecycle['NoncurrentVersionExpirationInDays'] = expiration
+            if "NoncurrentVersionTransitions" in configuration:
+                non_curr = []
+                non_transitions = configuration['NoncurrentVersionTransitions']
+                if isinstance(non_transitions, list):
+                    for transition in non_transitions:
+                        if 'StorageClass' in transition and 'TransitionInDays' in transition:
+                            if transition['StorageClass'] in storage_class and \
+                                isinstance(transition['TransitionInDays'], int):
+                                non_curr.append({
+                                    'StorageClass': transition['StorageClass'],
+                                    'TransitionInDays': transition['TransitionInDays']
+                                })
+            if 'Transition' in configuration:
+                transitions = []
+                if isinstance(configuration['Transition'], list):
+                    for transition in configuration['Transition']:
+                        trans = {}
+                        if "StorageClass" in transition:
+                            if transition['StorageClass'] in storage_class:
+                                trans['StorageClass'] = transition['StorageClass']
+                        if "TransitionDate" in transition:
+                            trans['TransitionDate'] = transition['TransitionDate']
+                        if "TransitionInDays" in transition:
+                            trans['TransitionInDays'] = transition['TransitionInDays']
+                        if 'StorageClass' in trans:
+                            if 'TransitionInDays' in trans or 'TransitionDate' in trans:
+                                transitions.append(trans)
             if "Id" in configuration:
                 lifecycle['Id'] = configuration['Id']
             if "Prefix" in configuration:
                 lifecycle['Prefix'] = configuration['Prefix']
-            if "TagFilters" in configuration:
-                lifecycle['TagFilters'] = self.construct_tags(
-                    configuration['TagFilters']
-                )
             if "Status" in configuration:
                 if configuration['Status'] in ['Enabled', 'Disabled']:
                     lifecycle['Status'] = configuration['Status']
+            if 'TagFilters' in configuration:
+                lifecycle['TagFilters'] = self.construct_tags(
+                    configuration['TagFilters'])
+            if 'Status' in lifecycle:
+                if 'AbortIncompleteMultipartUpload' in lifecycle or \
+                    'ExpirationDate' in lifecycle or \
+                    'ExpirationInDays' in lifecycle or \
+                    'NoncurrentVersionExpirationInDays' in lifecycle or \
+                    'NoncurrentVersionTransitions' in lifecycle or \
+                    'Transitions' in lifecycle:
+                    lifecycles.append(lifecycle)
+        self.template[arg] = {
+            'Rules': lifecycles
+        }
     
     def get_version_configuration(self, arg):
         """ Method that checks version configuration from payload """
@@ -256,84 +311,3 @@ class S3_CF:
     def get_iac_template(self):
         """ Method that returns iac template from configuration options """
         return self.template
-
-# def main():
-    # payload = {
-    #     "AccelerateConfiguration": "Enabled",
-    #     "AnalyticsConfiguration": {
-    #         "Id": "test",
-    #         "Prefix": "test",
-    #         "Destination": {
-    #             "BucketArn": "testarn"
-    #         },
-    #         "TagFilters": [
-    #             {
-    #                 "temp": "temp"
-    #             },
-    #             {
-    #                 "temp1": "test"
-    #             }
-    #         ]
-    #     },
-    #     "BucketEncryption": {
-    #         "SSEAlgorithm": "aws:kms",
-    #         "KMSMasterKeyID": "testarn"
-    #     },
-    #     "CorsConfiguration": [
-    #         {
-    #             "AllowedHeaders": [
-    #                 'test',
-    #                 'test1'
-    #             ],
-    #             "AllowedMethods": [
-    #                 'GET',
-    #                 'POST',
-    #                 'DELETE'
-    #             ],
-    #             "AllowedOrigins": [
-    #                 'testorigin',
-    #                 'testorigin1'
-    #             ],
-    #             "ExposedOrigins": [
-    #                 'testexpheaders',
-    #                 'testexpheaders1'
-    #             ],
-    #             "Id": 'testid',
-    #             "MaxAge": 343
-    #         },
-    #         {
-    #             "AllowedMethods": [
-    #                 "GET",
-    #                 "TEST"
-    #             ],
-    #             "AllowedOrigins": [
-    #                 "testorigins"
-    #             ]
-    #         },
-    #         {
-    #             "AllowedMethods": "GET"
-    #         }
-    #     ],
-    #     "VersionConfiguration": "Enabled",
-    #     "InventoryConfigurations": [
-    #         {
-    #             "Destination": {
-    #                 "BucketAccountId": 'test_account',
-    #                 "BucketArn": "test_bucket_arn",
-    #                 "Prefix": "~"
-    #             }, 
-    #             "Enabled": "True",
-    #             "Id": "InventoryConfiguartionId",
-    #             "IncludedObjectVersions": "All",
-    #             "OptionalFields": [
-    #                 "Size", "LastModifiedDate"
-    #             ],
-    #             "Prefix": "~",
-    #             "ScheduledFrequency": "Daily"
-    #         }
-    #     ]
-    # }
-#     test = S3_CF(payload)
-#     print(json.dumps(test.get_iac_template(), indent=2))
-    
-# main()
