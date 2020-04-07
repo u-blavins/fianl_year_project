@@ -542,7 +542,7 @@ class S3_CF:
                 if isinstance(bucket_property['DefaultRetention']['Days'], int):
                     retention['Days'] = bucket_property['DefaultRetention']['Days']
             if 'Mode' in bucket_property['DefaultRetention']:
-                if bucket_property['DefaultRetention'] in mode:
+                if bucket_property['DefaultRetention']['Mode'] in mode:
                     retention['Mode'] = bucket_property['DefaultRetention']['Mode']
             if 'Years' in bucket_property['DefaultRetention']:
                 if isinstance(bucket_property['DefaultRetention']['Years'], int):
@@ -552,7 +552,7 @@ class S3_CF:
         if len(object_lock.keys()) != 0:
             if 'ObjectLockEnabled' in object_lock:
                 self.template['ObjectLockEnabled'] = True
-            self.template['ObjectLockConfiguration'] = object_lock
+                self.template['ObjectLockConfiguration'] = object_lock
 
     def get_public_block_configuration(self, arg):
         """ Check to validate public access block configuration from a given payload

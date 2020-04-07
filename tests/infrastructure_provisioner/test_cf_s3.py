@@ -610,9 +610,119 @@ class TestS3_CF:
                     "Filter": [
                         {"Name": "prefix", "Value": "test-prefix"},
                         {"Name": "suffix", "Value": "test-suffix"}
-                    ]}
-                ]
+                    ],
+                    "Function": "test-function"
+                }]
             }
+        }
+        expected = {'NotificationConfiguration': {
+            'LambdaConfigurations': [{
+                'Event': 'test-event-name', 
+                'Filter': {
+                    'S3Key': {
+                        'Rules': [{
+                            'Name': 'prefix','Value': 'test-prefix'}, 
+                            {'Name': 'suffix', 'Value': 'test-suffix'}]}}, 
+                        'Function': 'test-function'}]}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_notification_configuration_adds_sqs_to_template(self):
+        """ Test Success: SQS configuration added to template """
+        test_payload = {
+            "NotificationConfiguration": {
+                "QueueConfigurations": [{
+                    "Event": "test-event-name",
+                    "Filter": [
+                        {"Name": "prefix", "Value": "test-prefix"},
+                        {"Name": "suffix", "Value": "test-suffix"}
+                    ],
+                    "Queue": "test-queue"
+                }]
+            }
+        }
+        expected = {'NotificationConfiguration': {
+            'QueueConfigurations': [{
+                'Event': 'test-event-name',
+                'Filter': {'S3Key': {'Rules': [{
+                    'Name': 'prefix', 'Value': 'test-prefix'},
+                    {'Name': 'suffix', 'Value': 'test-suffix'}]}},
+                    'Queue': 'test-queue'}]}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_notification_configuration_adds_sns_to_template(self):
+        """ Test Success: SNS configuration added to template """
+        test_payload = {
+            "NotificationConfiguration": {
+                "TopicConfigurations": [{
+                    "Event": "test-event-name",
+                    "Filter": [
+                        {"Name": "prefix", "Value": "test-prefix"},
+                        {"Name": "suffix", "Value": "test-suffix"}
+                    ],
+                    "Topic": "test-topic"
+                }]
+            }
+        }
+        expected = {'NotificationConfiguration': {
+            'TopicConfigurations': [{
+                'Event': 'test-event-name',
+                'Filter': {'S3Key': {'Rules': [{
+                    'Name': 'prefix', 'Value': 'test-prefix'},
+                    {'Name': 'suffix', 'Value': 'test-suffix'}]}},
+                    'Topic': 'test-topic'}]}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_object_lock_configuration_adds_to_template_without_retention(self):
+        """ Test Success: Object lock configuration added to template without retention """
+        test_payload = {
+            "ObjectLockConfiguration": {"ObjectLockEnabled": "Enabled"}
+        }
+        expected = {'ObjectLockConfiguration': {'ObjectLockEnabled': 'Enabled'},
+            'ObjectLockEnabled': True}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_object_lock_configuration_adds_to_template_with_retention(self):
+        """ Test Success: Object lock configuration added to template with retention """
+        test_payload = {
+            "ObjectLockConfiguration": {
+                "ObjectLockEnabled": "Enabled",
+                "DefaultRetention": {
+                    "Days": 123,
+                    "Mode": "GOVERNANCE",
+                    "Years": 1
+                }
+            }
+        }
+        expected = {
+            'ObjectLockEnabled': True,
+            'ObjectLockConfiguration': {
+            'ObjectLockEnabled': 'Enabled',
+            'Rule': {'DefaultRetention': {'Days': 123, 'Mode': 'GOVERNANCE', 'Years': 1}}}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+    
+    def test_get_object_lock_configuration_does_not_add_to_template_not_enabled(self):
+        """ Test Failure: Object lock configuration not added to template if not enabled """
+        test_payload = {
+            "ObjectLockConfiguration": {"DefaultRetention": {
+                    "Days": 123,
+                    "Mode": "GOVERNANCE",
+                    "Years": 1
+                }}
         }
         expected = {}
         self.mock_s3_cf.set_payload(test_payload)
