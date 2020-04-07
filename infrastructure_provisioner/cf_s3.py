@@ -1,4 +1,3 @@
-import json
 
 
 class S3_CF:
@@ -27,21 +26,50 @@ class S3_CF:
             "VersionConfiguration",
             "WebsiteConfiguration"
         ]
-        self.construct_template()
+
+    def set_payload(self, payload):
+        """ Setter for payload attribute
+
+        Args:
+            payload (dict): payload with infrastructure configuration
+        """
+        self.payload = payload
+
+    def get_payload(self):
+        """ Getter for payload attribute"""
+        return self.payload
+
+    def set_template(self):
+        """ Construct Resource for the CloudFormation template from payload """
+        for bucket_property in self.payload.keys():
+            if bucket_property in self.S3_BUCKET_PROPERTIES:
+                self.method_handler(bucket_property)
+
+    def get_template(self):
+        """ Method that returns iac template from configuration options """
+        return self.template
 
     @staticmethod
-    def construct_tags(self, tags):
-        """ Method that returns cloud formation friendly tags """
+    def construct_tags(tags):
+        """ Returns CloudFormation friendly key-value tags
+
+        Args:
+            tags (dict): dictionary of key and value tags
+        Returns:
+            cf_tags (dict): CloudFormation friendly tags
+        """
         cf_tags = []
         for key in tags.keys():
-            temp = {}
-            temp['Key'] = key
-            temp['Value'] = tags[key]
+            temp = {'Key': key, 'Value': tags[key]}
             cf_tags.append(temp)
         return cf_tags
 
     def method_handler(self, arg):
-        """ Method that handles different method calls """
+        """ Handle all different configurations for an S3 bucket
+
+        Args:
+            arg (dict): a payload of the infrastructure to be provisioned
+        """
         if arg == "AccelerateConfiguration":
             self.get_acceleration_config(arg)
         if arg == "AccessControl":
@@ -75,14 +103,15 @@ class S3_CF:
         if arg == "WebsiteConfiguration":
             self.get_website_configuration(arg)
 
-    def construct_template(self):
-        """ Method that constructs IAC template from payload """
-        for bucket_property in self.payload.keys():
-            if bucket_property in self.S3_BUCKET_PROPERTIES:
-                self.method_handler(bucket_property)
-
     def get_acceleration_config(self, arg):
-        """ Method that checks acceleration configuration from payload """
+        """ Check to validate acceleration configuration from a given payload
+
+        if payload satisfies validation, acceleration configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         accepted_options = [
             "Enabled",
             "Suspended"
@@ -95,7 +124,14 @@ class S3_CF:
                 }
 
     def get_access_control(self, arg):
-        """ Method that checks access control configuration from payload """
+        """ Check to validate access control configuration from a given payload
+
+        if payload satisfies validation, access control configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         accepted_options = [
             "private", "public-read", "public-read-write",
             "aws-exec-read", "authenticated-read", "bucket-owner-read",
@@ -104,10 +140,17 @@ class S3_CF:
         bucket_property = self.payload[arg]
         if isinstance(bucket_property, str):
             if bucket_property in accepted_options:
-                template[arg] = bucket_property
+                self.template[arg] = bucket_property
 
     def get_analytics_configuration(self, arg):
-        """ Method that checks analytics configuration from payload """
+        """ Check to validate analytics configuration from a given payload
+
+        if payload satisfies validation, analytics configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         template = {}
         dest = {}
         analytics_properties = ["Id", "Prefix", "Destination", "TagFilters"]
@@ -139,7 +182,14 @@ class S3_CF:
             self.template[arg] = template
 
     def get_bucket_encryption(self, arg):
-        """ Method that checks bucket encryption from payload """
+        """ Check to validate bucket encryption from a given payload
+
+        if payload satisfies validation, analytics configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         encryption = {}
         bucket_property = self.payload[arg]
         if isinstance(bucket_property, dict):
@@ -161,41 +211,55 @@ class S3_CF:
             }
 
     def get_cors_configuration(self, arg):
-        """ Method that checks cors configuration from payload """
-        corsrules = []
+        """ Check to validate cors configuration from a given payload
+
+        if payload satisfies validation, cors configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
+        cors_rules = []
         allowed_methods = ['GET', 'PUT', 'HEAD', 'POST', 'DELTE']
         bucket_property = self.payload[arg]
         for configuration in bucket_property:
-            corsrule = {}
+            cors_rule = {}
             if "AllowedHeaders" in configuration:
                 if isinstance(configuration['AllowedHeaders'], list):
-                    corsrule['AllowedHeaders'] = configuration['AllowedHeaders']
+                    cors_rule['AllowedHeaders'] = configuration['AllowedHeaders']
             if "AllowedMethods" in configuration:
                 methods = []
                 for method in configuration['AllowedMethods']:
                     if method in allowed_methods:
                         methods.append(method)
-                corsrule['AllowedMethods'] = methods
+                cors_rule['AllowedMethods'] = methods
             if "AllowedOrigins" in configuration:
                 if isinstance(configuration['AllowedOrigins'], list):
-                    corsrule['AllowedOrigins'] = configuration['AllowedOrigins']
+                    cors_rule['AllowedOrigins'] = configuration['AllowedOrigins']
             if "ExposedHeaders" in configuration:
                 if isinstance(configuration['ExposedHeaders'], list):
-                    corsule['ExposedHeaders'] = configuration['ExposedHeaders']
+                    cors_rule['ExposedHeaders'] = configuration['ExposedHeaders']
             if "Id" in configuration:
                 if configuration["Id"] != "":
-                    corsrule['Id'] = configuration['Id']
+                    cors_rule['Id'] = configuration['Id']
             if "MaxAge" in configuration:
                 if isinstance(configuration['MaxAge'], int):
-                    corsrule['MaxAge'] = configuration['MaxAge']
-            if ("AllowedMethods" in corsrule) and ("AllowedOrigins" in corsrule):
-                corsrules.append(corsrule)
+                    cors_rule['MaxAge'] = configuration['MaxAge']
+            if ("AllowedMethods" in cors_rule) and ("AllowedOrigins" in cors_rule):
+                cors_rules.append(cors_rule)
         self.template[arg] = {
-            "CorsRules": corsrules
+            "CorsRules": cors_rules
         }
 
     def get_inventory_configuration(self, arg):
-        """ Method that checks inventory configuration from payload """
+        """ Check to validate inventory configuration from a given payload
+
+        if payload satisfies validation, inventory configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         valid_fields = [
             "Size", "LastModifiedDate", "StorageClass", "ETag", "IsMultiPartUpload",
             "ReplicationStatus", "EncryptionStatus", "ObjectLockRetainUntilDate",
@@ -236,23 +300,45 @@ class S3_CF:
             if "ScheduledFrequency" in configuration:
                 if configuration['ScheduledFrequency'] in ['Daily', 'Weekly']:
                     inventory['ScheduledFrequency'] = configuration['ScheduledFrequency']
-            if set(['Enabled', 'Id', 'IncludedObjectVersions', 'ScheduledFrequency']).issubset(set(inventory.keys())):
+            if {'Enabled', 'Id', 'IncludedObjectVersions', 'ScheduledFrequency'}.issubset(set(inventory.keys())):
                 inventory_configurations.append(inventory)
         if len(inventory_configurations) != 0:
             self.template[arg] = inventory_configurations
 
-    def get_lifecycle_configuration(self, arg):
-        """ Method that checks lifecycle configuration from payload """
-        bucket_property = self.payload[arg]
-        storage_class = [
-            'DEEP_ARCHIVE', 'GLACIER', 'INTELLIGENT_TIERING', 'ONEZONE_IA', 'STANDARD_IA'
-        ]
+    @staticmethod
+    def has_lifecycle_configuration_set(properties):
+        """ Method that checks if a lifecycle property has been set
+
+        Args:
+            properties (dict): properties set for a lifecycle configuration
+
+        Returns:
+            bool: depending on if a property has been set
+        """
         optional_properties = [
             'AbortIncompleteMultipartUpload', 'ExpirationDate', 'ExpirationInDays',
             'NoncurrentVersionExpirationInDays', 'NoncurrentVersionTransitions',
             'Transitions'
         ]
-        lifecycles = []
+        for prop in properties:
+            if prop in optional_properties:
+                return True
+        return False
+
+    def get_lifecycle_configuration(self, arg):
+        """ Check to validate lifecycle configuration from a given payload
+
+        if payload satisfies validation, lifecycle configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
+        bucket_property = self.payload[arg]
+        storage_class = [
+            'DEEP_ARCHIVE', 'GLACIER', 'INTELLIGENT_TIERING', 'ONEZONE_IA', 'STANDARD_IA'
+        ]
+        life_cycles = []
         for configuration in bucket_property:
             lifecycle = {}
             if "AbortIncompleteMultipartUpload" in configuration:
@@ -312,24 +398,33 @@ class S3_CF:
                 lifecycle['TagFilters'] = self.construct_tags(
                     configuration['TagFilters'])
             if 'Status' in lifecycle:
-                if 'AbortIncompleteMultipartUpload' in lifecycle or \
-                        'ExpirationDate' in lifecycle or \
-                        'ExpirationInDays' in lifecycle or \
-                        'NoncurrentVersionExpirationInDays' in lifecycle or \
-                        'NoncurrentVersionTransitions' in lifecycle or \
-                        'Transitions' in lifecycle:
-                    lifecycles.append(lifecycle)
-        if len(lifecycles) != 0:
-            self.template[arg] = {'Rules': lifecycles}
+                if self.has_lifecycle_configuration_set(lifecycle):
+                    life_cycles.append(lifecycle)
+        if len(life_cycles) != 0:
+            self.template[arg] = {'Rules': life_cycles}
 
     def get_version_configuration(self, arg):
-        """ Method that checks version configuration from payload """
+        """ Check to validate version_configuration from a given payload
+
+        if payload satisfies validation, version_configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         bucket_property = self.payload[arg]
         if bucket_property in ['Enabled', 'Suspended']:
             self.template[arg] = bucket_property
 
     def get_logging_configuration(self, arg):
-        """ Method that checks logging configuration from payload """
+        """ Check to validate logging configuration from a given payload
+
+        if payload satisfies validation, logging configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         logging = {}
         bucket_property = self.payload[arg]
         if 'LogFilePrefix' in bucket_property:
@@ -340,7 +435,14 @@ class S3_CF:
             self.template[arg] = logging
 
     def get_metrics_configuration(self, arg):
-        """ Method that checks metric configuration from payload """
+        """ Check to validate metric configuration from a given payload
+
+        if payload satisfies validation, metric configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         metrics = []
         bucket_property = self.payload[arg]
         for configuration in bucket_property:
@@ -358,7 +460,14 @@ class S3_CF:
 
     @staticmethod
     def get_notification(config):
-        """ Method that returns notification configations """
+        """ Validate a notification configuration
+
+        Args:
+            config (dict): a notification configuration
+            
+        Returns:
+            notifications (dict): Notification configurations
+        """
         notifications = []
         for configuration in config:
             notification = {}
@@ -389,7 +498,14 @@ class S3_CF:
         return notifications
 
     def get_notification_configuration(self, arg):
-        """ Method that checks notification configuration from payload """
+        """ Check to validate notification configuration from a given payload
+
+        if payload satisfies validation, notification configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         notification = {}
         bucket_property = self.payload[arg]
         if 'LambdaConfigurations' in bucket_property:
@@ -408,7 +524,14 @@ class S3_CF:
             self.template[arg] = notification
 
     def get_object_lock_configuration(self, arg):
-        """ Method that checks object lock configuration from payload """
+        """ Check to validate object lock configuration from a given payload
+
+        if payload satisfies validation, object lock configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         object_lock = {}
         mode = ['COMPLIANCE', 'GOVERNANCE']
         bucket_property = self.payload[arg]
@@ -421,7 +544,7 @@ class S3_CF:
                 if isinstance(bucket_property['DefaultRetention']['Days'], int):
                     retention['Days'] = bucket_property['DefaultRetention']['Days']
             if 'Mode' in bucket_property['DefaultRetention']:
-                if bucket_property['DefaultRetention'] in ['COMPLIANCE', 'GOVERNANCE']:
+                if bucket_property['DefaultRetention'] in mode:
                     retention['Mode'] = bucket_property['DefaultRetention']['Mode']
             if 'Years' in bucket_property['DefaultRetention']:
                 if isinstance(bucket_property['DefaultRetention']['Years'], int):
@@ -434,7 +557,14 @@ class S3_CF:
             self.template['ObjectLockConfiguration'] = object_lock
 
     def get_public_block_configuration(self, arg):
-        """ Method that checks public access block configuration from payload """
+        """ Check to validate public access block configuration from a given payload
+
+        if payload satisfies validation, public access block configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         bucket_property = self.payload[arg]
         public_block = {}
         public_access_block = [
@@ -447,7 +577,14 @@ class S3_CF:
             self.template[arg] = public_block
 
     def get_replication_configuration(self, arg):
-        """ Method that checks replication configuration from payload """
+        """ Check to validate replication configuration from a given payload
+
+        if payload satisfies validation, replication configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         replication = {}
         rules = []
         storage_class = [
@@ -503,15 +640,27 @@ class S3_CF:
             self.template['ReplicationConfiguration'] = replication
 
     def get_tags(self, arg):
-        """ Method that checks tags from payload """
-        tags = []
+        """ Check to validate tags from a given payload
+
+        if payload satisfies validation, tags is added to self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         bucket_property = self.payload[arg]
         tags = self.construct_tags(bucket_property)
         if len(tags) != 0:
             self.template[arg] = tags
 
     def get_website_configuration(self, arg):
-        """ Method that checks website configuration from payload """
+        """ Check to validate website configuration from a given payload
+
+        if payload satisfies validation, website configuration is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
         website = {}
         bucket_property = self.payload[arg]
         if "ErrorDocument" in bucket_property:
@@ -561,7 +710,3 @@ class S3_CF:
                 website['RedirectRules'] = rules
         if len(website.keys()) != 0:
             self.template['WebsiteConfiguration'] = website
-
-    def get_iac_template(self):
-        """ Method that returns iac template from configuration options """
-        return self.template
