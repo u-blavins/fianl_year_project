@@ -607,7 +607,7 @@ class S3_CF:
                             dest['EncryptionConfiguration'] = {
                                 'ReplicaKmsKeyID': dest_config['ReplicaKmsKeyID']}
                         if "StorageClass" in dest_config:
-                            if rep_rule['StorageClass'] in storage_class:
+                            if dest_config['StorageClass'] in storage_class:
                                 dest['StorageClass'] = dest_config['StorageClass']
                         if "Bucket" in dest_config:
                             dest['Bucket'] = dest_config['Bucket']

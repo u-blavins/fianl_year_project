@@ -729,3 +729,186 @@ class TestS3_CF:
         self.mock_s3_cf.set_template()
         sut = self.mock_s3_cf.get_template()
         assert sut == expected
+
+    def test_get_public_block_configuration_adds_to_template(self):
+        """ Test Success: Public block configuration added to template """
+        test_payload = {
+            "PublicAccessBlockConfiguration": {
+                "BlockPublicAcls": True,
+                "BlockPublicPolicy": True,
+                "IgnorePublicAcls": False,
+                "RestrictPublicBuckets": True
+            }
+        }
+        expected = {'PublicAccessBlockConfiguration': {
+            'BlockPublicAcls': True,
+            'BlockPublicPolicy': True,
+            'IgnorePublicAcls': False,
+            'RestrictPublicBuckets': True}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_replication_configuration_adds_to_template(self):
+        """ Test Success: Replication configuration added to template """
+        test_payload = {
+            "ReplicationConfiguration": {
+                "Role": "test-role",
+                "Rules": [{
+                    "Destination": {
+                        "Owner": "test-owner",
+                        "Account": "test-account",
+                        "Bucket": "test-bucket",
+                        "ReplicaKmsKeyID": "test-key-id",
+                        "StorageClass": "DEEP_ARCHIVE"
+                    },
+                    "Id": "test-id",
+                    "Prefix": "test-prefix",
+                    "SseKmsEncryptionEnabled": "Disabled",
+                    "Status": "Enabled"
+                }]
+            }
+        }
+        expected = {'ReplicationConfiguration': {
+            'Role': 'test-role',
+            'Rules': [{
+                'Destination': {
+                    'AccessControlTranslation': {
+                        'Owner': 'test-owner'
+                    },
+                    'Account': 'test-account',
+                    'EncryptionConfiguration': {
+                        'ReplicaKmsKeyID': 'test-key-id'
+                    },
+                    'Bucket': 'test-bucket',
+                    'StorageClass': 'DEEP_ARCHIVE'
+                },
+                'Id': 'test-id',
+                'Prefix': 'test-prefix',
+                'SourceSelectionCriteria': {'SseKmsEncryptionEnabled': {'Status': 'Disabled'}},
+                'Status': 'Enabled'}]}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_replication_configuration_adds_to_template_without_sse(self):
+        """ Test Success: Replication configuration added to template without sse """
+        test_payload = {
+            "ReplicationConfiguration": {
+                "Role": "test-role",
+                "Rules": [{
+                    "Destination": {
+                        "Bucket": "test-bucket",
+                    },
+                    "Id": "test-id",
+                    "Status": "Enabled"
+                }]
+            }
+        }
+        expected = {'ReplicationConfiguration': {
+            'Role': 'test-role',
+            'Rules': [{
+                'Destination': {'Bucket': 'test-bucket'},
+                'Id': 'test-id', 'Prefix': '', 'SourceSelectionCriteria': {
+                    'SseKmsEncryptionEnabled': {'Status': 'Disabled'}},
+                    'Status': 'Enabled'}]}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_replication_configuration_does_not_add_to_template_without_role(self):
+        """ Test Success: Replication configuration not added to template if incorrect
+        without role """
+        test_payload = {
+            "ReplicationConfiguration": {
+                "Rules": [{
+                    "Destination": {
+                        "Bucket": "test-bucket",
+                    },
+                    "Id": "test-id",
+                    "Status": "Enabled"
+                }]
+            }
+        }
+        expected = {}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_replication_configuration_does_not_add_to_template_without_props(self):
+        """ Test Success: Replication configuration not added to template if incorrect
+        without other properties """
+        test_payload = {
+            "ReplicationConfiguration": {
+                "Role": "test-role",
+                "Rules": [{
+                    "Destination": {
+                        'Account': 'test-account'
+                    },
+                    "Id": "test-id"
+                }]
+            }
+        }
+        expected = {}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_tags_returns_tags_and_adds_to_template(self):
+        """ Test Success: CloudFormation tags returned correctly and added
+        to template """
+        test_payload = {
+            "Tags": {
+                "test-key": "test-value"
+            }
+        }
+        expected = {'Tags': [{'Key': 'test-key', 'Value': 'test-value'}]}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_website_configuration_adds_to_template(self):
+        """ Test Success: Website configuration added to template """
+        test_payload = {
+            "WebsiteConfiguration": {
+                "ErrorDocument": "test-error",
+                "IndexDocument": "test-index",
+                "RedirectAllRequestsTo": {
+                    "Hostname": "test-host",
+                    "Protocol": "http"
+                },
+                "RoutingRules": [{
+                    "RedirectRules": {
+                        "HostName": "test-host",
+                        "HttpRedirectCode": "test-redirect-code",
+                        "Protocol": "http",
+                        "ReplaceKeyPrefixWith": "test-prefix",
+                        "ReplaceKeyWith": "test-prefix"
+                    },
+                    "RoutingRuleCondition": {
+                        "HttpErrorCodeReturnsEquals": "test-error-code",
+                        "KeyPrefixEquals": "test-prefix"
+                    }
+                }]
+            }
+        }
+        expected = {'WebsiteConfiguration': {
+            'ErrorDocument': 'test-error',
+            'IndexDocument': 'test-index',
+            'RedirectAllRequestsTo': {
+                'Hostname': 'test-host', 'Protocol': 'http'},
+                'RedirectRules': [{'RedirectRules': {'HostName': 'test-host',
+                'HttpRedirectCode': 'test-redirect-code','Protocol': 'http',
+                'ReplaceKeyPrefixWith': 'test-prefix', 'ReplaceKeyWith': 'test-prefix'},
+                'RoutingRuleCondition': {'HttpErrorCodeReturnsEquals': 'test-error-code',
+                'KeyPrefixEquals': 'test-prefix'}}]}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
