@@ -127,3 +127,4 @@ dmypy.json
 # Generic files
 *.DS_Store
 *.vscode
+*.idea

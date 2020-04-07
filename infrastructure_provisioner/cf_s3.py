@@ -1,5 +1,6 @@
 import json
 
+
 class S3_CF:
     """Class that converts s3 payload into CloudFormation"""
 
@@ -28,12 +29,13 @@ class S3_CF:
         ]
         self.construct_template()
 
+    @staticmethod
     def construct_tags(self, tags):
         """ Method that returns cloud formation friendly tags """
         cf_tags = []
         for key in tags.keys():
-            temp={}
-            temp['Key']   = key
+            temp = {}
+            temp['Key'] = key
             temp['Value'] = tags[key]
             cf_tags.append(temp)
         return cf_tags
@@ -78,7 +80,7 @@ class S3_CF:
         for bucket_property in self.payload.keys():
             if bucket_property in self.S3_BUCKET_PROPERTIES:
                 self.method_handler(bucket_property)
-    
+
     def get_acceleration_config(self, arg):
         """ Method that checks acceleration configuration from payload """
         accepted_options = [
@@ -89,8 +91,8 @@ class S3_CF:
         if isinstance(bucket_property, str):
             if bucket_property in accepted_options:
                 self.template[arg] = {
-                        "AccelerationStatus": bucket_property
-                    }
+                    "AccelerationStatus": bucket_property
+                }
 
     def get_access_control(self, arg):
         """ Method that checks access control configuration from payload """
@@ -103,7 +105,7 @@ class S3_CF:
         if isinstance(bucket_property, str):
             if bucket_property in accepted_options:
                 template[arg] = bucket_property
-    
+
     def get_analytics_configuration(self, arg):
         """ Method that checks analytics configuration from payload """
         template = {}
@@ -146,7 +148,7 @@ class S3_CF:
                     if "KMSMasterKeyID" in bucket_property:
                         encryption = {
                             "SSEAlgorithm": bucket_property["SSEAlgorithm"],
-                            "KMSMasterKeyID": bucket_property['KMSMasterKeyID'] 
+                            "KMSMasterKeyID": bucket_property['KMSMasterKeyID']
                         }
                 elif bucket_property['SSEAlgorithm'] == "AES256":
                     encryption = {
@@ -157,7 +159,7 @@ class S3_CF:
                     "ServerSideEncryptionByDefault": encryption
                 }
             }
-    
+
     def get_cors_configuration(self, arg):
         """ Method that checks cors configuration from payload """
         corsrules = []
@@ -257,7 +259,7 @@ class S3_CF:
                 days = configuration['AbortIncompleteMultipartUpload']
                 if isinstance(days, int):
                     lifecycle['AbortIncompleteMultipartUpload'] = {
-                        'DaysAfterInitiation': days }
+                        'DaysAfterInitiation': days}
             if "ExpirationDate" in configuration:
                 lifecycle['ExpirationDate'] = configuration['ExpirationDate']
             if "ExpirationInDays" in configuration:
@@ -275,7 +277,7 @@ class S3_CF:
                     for transition in non_transitions:
                         if 'StorageClass' in transition and 'TransitionInDays' in transition:
                             if transition['StorageClass'] in storage_class and \
-                                isinstance(transition['TransitionInDays'], int):
+                                    isinstance(transition['TransitionInDays'], int):
                                 non_curr.append({
                                     'StorageClass': transition['StorageClass'],
                                     'TransitionInDays': transition['TransitionInDays']
@@ -311,15 +313,15 @@ class S3_CF:
                     configuration['TagFilters'])
             if 'Status' in lifecycle:
                 if 'AbortIncompleteMultipartUpload' in lifecycle or \
-                    'ExpirationDate' in lifecycle or \
-                    'ExpirationInDays' in lifecycle or \
-                    'NoncurrentVersionExpirationInDays' in lifecycle or \
-                    'NoncurrentVersionTransitions' in lifecycle or \
-                    'Transitions' in lifecycle:
+                        'ExpirationDate' in lifecycle or \
+                        'ExpirationInDays' in lifecycle or \
+                        'NoncurrentVersionExpirationInDays' in lifecycle or \
+                        'NoncurrentVersionTransitions' in lifecycle or \
+                        'Transitions' in lifecycle:
                     lifecycles.append(lifecycle)
         if len(lifecycles) != 0:
             self.template[arg] = {'Rules': lifecycles}
-    
+
     def get_version_configuration(self, arg):
         """ Method that checks version configuration from payload """
         bucket_property = self.payload[arg]
@@ -373,7 +375,7 @@ class S3_CF:
                                     'Value': _filter['Value']
                                 })
                 if len(filters) != 0:
-                    notification['Filter'] = { 'S3Key': {'Rules': filters}}
+                    notification['Filter'] = {'S3Key': {'Rules': filters}}
             if "Function" in configuration:
                 notification['Function'] = configuration['Function']
             if "Queue" in configuration:
@@ -382,7 +384,7 @@ class S3_CF:
                 notification['Topic'] = configuration['Topic']
             if 'Event' in notification and 'Filter' in notification:
                 if 'Function' in notification or 'Queue' in notification or \
-                    'Topic' in configuration:
+                        'Topic' in configuration:
                     notifications.append(notification)
         return notifications
 
@@ -401,10 +403,10 @@ class S3_CF:
         if 'TopicConfigurations' in bucket_property:
             config = self.get_notification(bucket_property['TopicConfigurations'])
             if len(config) != 0:
-                notification['TopicConfigurations'] = config 
+                notification['TopicConfigurations'] = config
         if len(notification.keys()) != 0:
-            self.template[arg] = notification 
-    
+            self.template[arg] = notification
+
     def get_object_lock_configuration(self, arg):
         """ Method that checks object lock configuration from payload """
         object_lock = {}
@@ -430,7 +432,7 @@ class S3_CF:
             if 'ObjectLockEnabled' in object_lock:
                 self.template['ObjectLockEnabled'] = True
             self.template['ObjectLockConfiguration'] = object_lock
-        
+
     def get_public_block_configuration(self, arg):
         """ Method that checks public access block configuration from payload """
         bucket_property = self.payload[arg]
@@ -443,7 +445,7 @@ class S3_CF:
                     public_block[key] = bucket_property[key]
         if set(public_access_block).issubset(set(public_block.keys())):
             self.template[arg] = public_block
-    
+
     def get_replication_configuration(self, arg):
         """ Method that checks replication configuration from payload """
         replication = {}
@@ -499,7 +501,6 @@ class S3_CF:
         if "Role" in replication and len(rules) != 0:
             replication['Rules'] = rules
             self.template['ReplicationConfiguration'] = replication
-    
 
     def get_tags(self, arg):
         """ Method that checks tags from payload """
@@ -508,7 +509,7 @@ class S3_CF:
         tags = self.construct_tags(bucket_property)
         if len(tags) != 0:
             self.template[arg] = tags
-    
+
     def get_website_configuration(self, arg):
         """ Method that checks website configuration from payload """
         website = {}
@@ -560,7 +561,7 @@ class S3_CF:
                 website['RedirectRules'] = rules
         if len(website.keys()) != 0:
             self.template['WebsiteConfiguration'] = website
-                    
+
     def get_iac_template(self):
         """ Method that returns iac template from configuration options """
         return self.template
