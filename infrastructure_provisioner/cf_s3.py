@@ -564,10 +564,3 @@ class S3_CF:
     def get_iac_template(self):
         """ Method that returns iac template from configuration options """
         return self.template
-
-def main():
-    payload = {}
-    test = S3_CF(payload)
-    print(json.dumps(test.get_iac_template(), indent=4))
-
-main()

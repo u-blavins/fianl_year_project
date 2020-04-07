@@ -18,3 +18,4 @@ def provision():
     return jsonify(payload)
 
 # curl -d "@payload.json" -X POST http://localhost:8080/api/v1/provisioner/validate
+# - content-type json/text
