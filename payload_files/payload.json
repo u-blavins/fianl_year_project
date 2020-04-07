@@ -14,7 +14,7 @@
             "BucketArn": "BUCKET_ARN",
             "Prefix": null
           },
-          "Tags": [
+          "TagFilters": [
             {
               "Key": "key",
               "Value": "value"

@@ -9,7 +9,7 @@ class S3_CF:
         self.response = {}
         self.S3_BUCKET_PROPERTIES = [
             "AccelerateConfiguration",
-            "AccessContol",
+            "AccessControl",
             "AnalyticsConfiguration",
             "BucketEncryption",
             "BucketName",
@@ -173,9 +173,7 @@ class S3_CF:
                                 "OutputSchemaVersion": "V_1"
                             }
                     elif prop == "TagFilters":
-                        template[prop] = self.construct_tags(
-                            bucket_property[prop]
-                        )
+                        template[prop] = self.construct_tags(bucket_property[prop])
                     else:
                         template[prop] = bucket_property[prop]
         if "StorageClassAnalysis" in template:
@@ -247,9 +245,8 @@ class S3_CF:
                     cors_rule['MaxAge'] = configuration['MaxAge']
             if ("AllowedMethods" in cors_rule) and ("AllowedOrigins" in cors_rule):
                 cors_rules.append(cors_rule)
-        self.template[arg] = {
-            "CorsRules": cors_rules
-        }
+        if len(cors_rules) != 0:
+            self.template[arg] = {"CorsRules": cors_rules}
 
     def get_inventory_configuration(self, arg):
         """ Check to validate inventory configuration from a given payload
@@ -290,7 +287,7 @@ class S3_CF:
             if "Prefix" in configuration:
                 inventory['Prefix'] = configuration['Prefix']
             if "Enabled" in configuration:
-                if configuration['Enabled'] in ['True', 'False']:
+                if configuration['Enabled'] in [True, False]:
                     inventory['Enabled'] = configuration['Enabled']
             if "Id" in configuration:
                 inventory['Id'] = configuration['Id']
