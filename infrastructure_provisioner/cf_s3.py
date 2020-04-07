@@ -23,7 +23,7 @@ class S3_CF:
             "PublicAccessBlockConfiguration",
             "ReplicationConfiguration",
             "Tags",
-            "VersionConfiguration",
+            "VersioningConfiguration",
             "WebsiteConfiguration"
         ]
 
@@ -78,9 +78,11 @@ class S3_CF:
             self.get_analytics_configuration(arg)
         if arg == "BucketEncryption":
             self.get_bucket_encryption(arg)
+        if arg == "BucketName":
+            self.get_bucket_name(arg)
         if arg == "CorsConfiguration":
             self.get_cors_configuration(arg)
-        if arg == "VersionConfiguration":
+        if arg == "VersioningConfiguration":
             self.get_version_configuration(arg)
         if arg == "InventoryConfigurations":
             self.get_inventory_configuration(arg)
@@ -203,10 +205,22 @@ class S3_CF:
                         "SSEAlgorithm": bucket_property["SSEAlgorithm"]}
         if "SSEAlgorithm" in encryption:
             self.template[arg] = {
-                "ServerSideEncryptionConfiguration": {
+                "ServerSideEncryptionConfiguration": [{
                     "ServerSideEncryptionByDefault": encryption
-                }
+                }]
             }
+
+    def get_bucket_name(self, arg):
+        """ Check to validate bucket name from given payload
+
+        if payload satisfies validation, bucket name is added to
+        self.template
+
+        Args:
+            arg (dict): a given payload
+        """
+        bucket_property = self.payload[arg]
+        self.template[arg] = bucket_property
 
     def get_cors_configuration(self, arg):
         """ Check to validate cors configuration from a given payload
@@ -412,7 +426,7 @@ class S3_CF:
         """
         bucket_property = self.payload[arg]
         if bucket_property in ['Enabled', 'Suspended']:
-            self.template[arg] = bucket_property
+            self.template[arg] = {"Status": bucket_property}
 
     def get_logging_configuration(self, arg):
         """ Check to validate logging configuration from a given payload

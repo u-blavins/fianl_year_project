@@ -174,7 +174,7 @@ class TestS3_CF:
             }
         }
         expected = {'BucketEncryption': {'ServerSideEncryptionConfiguration': 
-        {'ServerSideEncryptionByDefault': {'SSEAlgorithm': 'AES256'}}}}
+        [{'ServerSideEncryptionByDefault': {'SSEAlgorithm': 'AES256'}}]}}
         self.mock_s3_cf.set_payload(test_payload)
         self.mock_s3_cf.set_template()
         sut = self.mock_s3_cf.get_template()
@@ -189,8 +189,8 @@ class TestS3_CF:
             }
         }
         expected = {'BucketEncryption': {'ServerSideEncryptionConfiguration': 
-        {'ServerSideEncryptionByDefault': {'KMSMasterKeyID': 'test-key', 
-        'SSEAlgorithm': 'aws:kms'}}}}
+        [{'ServerSideEncryptionByDefault': {'KMSMasterKeyID': 'test-key', 
+        'SSEAlgorithm': 'aws:kms'}}]}}
         self.mock_s3_cf.set_payload(test_payload)
         self.mock_s3_cf.set_template()
         sut = self.mock_s3_cf.get_template()
@@ -209,6 +209,17 @@ class TestS3_CF:
         """ Test Failure: Bucket encryption not added to template without SSEAlgorithm"""
         test_payload = {"BucketEncryption": {"SSEAlgorithm": "test"}}
         expected = {}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_bucket_name_adds_bucket_name_to_template(self):
+        """ Test Success: Bucket name added to template """
+        test_payload = {
+            "BucketName": "test-bucket-name"
+        }
+        expected = {"BucketName": "test-bucket-name"}
         self.mock_s3_cf.set_payload(test_payload)
         self.mock_s3_cf.set_template()
         sut = self.mock_s3_cf.get_template()
@@ -527,20 +538,22 @@ class TestS3_CF:
 
     def test_get_version_configuration_added_to_template(self):
         """ Test Success: Version configuration added to template """
-        expected_enabled = {"VersionConfiguration": "Enabled"}
-        self.mock_s3_cf.set_payload(expected_enabled)
+        test_enabled = {"VersioningConfiguration": "Enabled"}
+        expected_enabled = {"VersioningConfiguration": {"Status":"Enabled"}}
+        self.mock_s3_cf.set_payload(test_enabled)
         self.mock_s3_cf.set_template()
         sut_enabled = self.mock_s3_cf.get_template()
         assert sut_enabled == expected_enabled
-        expected_suspended = {"VersionConfiguration": "Suspended"}
-        self.mock_s3_cf.set_payload(expected_suspended)
+        test_suspended = {"VersioningConfiguration": "Suspended"}
+        expected_suspended = {"VersioningConfiguration": {"Status":"Suspended"}}
+        self.mock_s3_cf.set_payload(test_suspended)
         self.mock_s3_cf.set_template()
         sut_suspended = self.mock_s3_cf.get_template()
         assert sut_suspended == expected_suspended
 
     def test_get_version_configuration_not_added_to_template(self):
         """ Test Failure: Version configuration not added if incorrect """
-        test_payload = {"VersionConfiguration": "test"}
+        test_payload = {"VersioningConfiguration": "test"}
         expected = {}
         self.mock_s3_cf.set_payload(test_payload)
         self.mock_s3_cf.set_template()

@@ -1,31 +1,36 @@
 import yaml
 import json
 
-class IAC_CREATOR:
-    """Class for creating CloudFormation templates for a service"""
-
-    def __init__(self, payload):
-        """Initialise class"""
-        self.payload = payload
-        self.iac_template = {}
-        self.service = self.get_services()
-    
-    def get_services(self):
-        """Method that retrieves services to"""
-
-    def return_template(self):
-        return self.iac_template
-
-
-def get_payload(file_path):
-    """ Function that retrieves payload from a file"""
-    with open(file_path) as file:
-        payload = yaml.safe_load(file)
-    return payload
+from cf_s3 import S3_CF
 
 def main():
-    payload = get_payload("../iac_templates/payload.yaml")
+    payload = {
+        "BucketEncryption": {
+            "SSEAlgorithm": "AES256"
+        },
+        "BucketName": "test-bucket-provisioner",
+        "PublicAccessBlockConfiguration": {
+            "BlockPublicAcls": True,
+            "BlockPublicPolicy": True,
+            "IgnorePublicAcls": True,
+            "RestrictPublicBuckets": True
+        },
+        "ObjectLockConfiguration": {
+            "ObjectLockEnabled": "Enabled",
+            "DefaultRetention": {
+                "Mode": "GOVERNANCE",
+                "Days": 1
+            }
+        },
+        "VersioningConfiguration": "Enabled",
+        "Tags": {
+            "Owner": "Usama Blavins",
+            "Role": "CloudFormation Template Bucket for EU-WEST-1"
+        }
+    }
+    s3_cf = S3_CF(payload)
+    s3_cf.set_template()
+    print (json.dumps(s3_cf.get_template(), indent=4))
     return 0
 
-if __name__ == '__main__':
-    main()
+main()
