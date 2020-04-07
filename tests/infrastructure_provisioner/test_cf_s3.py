@@ -261,15 +261,171 @@ class TestS3_CF:
             "Prefix": fake_prefix
         }
         test_payload = {
-            "Destination": fake_destination,
-            "Id": fake_id,
-            "Enabled": True,
-            "IncludedObjectVersions": "All",
-            "OptionalFields": ["Size", "LastModifiedDate"],
-            "Prefix": fake_prefix,
-            "ScheduledFrequency": "Daily"
+            "InventoryConfigurations": [{
+                "Destination": fake_destination,
+                "Id": fake_id,
+                "Enabled": True,
+                "IncludedObjectVersions": "All",
+                "OptionalFields": ["Size", "LastModifiedDate"],
+                "Prefix": fake_prefix,
+                "ScheduledFrequency": "Daily"
+            }]
+        }
+        expected = {'InventoryConfigurations': [{'Destination': {'BucketAccountId': 'ACCOUNT_NUM',
+            'BucketArn': 'BUCKET_ARN', 'Format': 'CSV', 'Prefix': 'test_prefix'},
+            'Enabled': True,
+            'Id': 'test_id',
+            'IncludedObjectVersions': 'All',
+            'OptionalFields': ['Size', 'LastModifiedDate'],
+            'Prefix': 'test_prefix',
+            'ScheduledFrequency': 'Daily'}]}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_inventory_configuration_does_not_add_config_if_mandatory_keys_absent(self):
+        """ Test Failure: """
+        fake_prefix = "test_prefix"
+        fake_destination = {
+            "BucketAccountId": "ACCOUNT_NUM",
+            "BucketArn": "BUCKET_ARN",
+            "Prefix": fake_prefix
+        }
+        test_payload = {
+            "InventoryConfigurations": [{
+                "Destination": fake_destination,
+                "OptionalFields": ["Size", "LastModifiedDate"],
+                "Prefix": fake_prefix,
+            }]
         }
         expected = {}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_has_lifecycle_configuration_set_returns_true_if_config_property_present(self):
+        """ Test Success: Returns True if property present """
+        fake_properties = {
+            "AbortIncompleteMultipartUpload": "test",
+            "ExpirationDate": "test"
+        }
+        sut = self.mock_s3_cf.has_lifecycle_configuration_set(fake_properties)
+        assert sut
+    
+    def test_has_lifecycle_configuration_set_returns_false_if_config_property_absent(self):
+        """ Test Failure: Returns False if property absent """
+        fake_properties = {
+            "test": "test"
+        }
+        sut = self.mock_s3_cf.has_lifecycle_configuration_set(fake_properties)
+        assert not sut
+
+    def test_get_lifecycle_configuration_adds_lifecycle_configuration(self):
+        """ Test Success: Lifecycle configuration added to template """
+        test_payload = {"LifecycleConfiguration": [
+            {
+                "AbortIncompleteMultipartUpload": 123,
+                "ExpirationDate": 1234,
+                "ExpirationInDays": 123,
+                "NoncurrentVersionExpirationInDays": 123,
+                "NoncurrentVerstionTransitions": [
+                    {
+                        "StorageClass": "DEEP_ARCHIVE",
+                        "TransitionInDays": 123
+                    }
+                ],
+                "Transitions": [
+                    {
+                        "StorageClass": "DEEP_ARCHIVE",
+                        "TransitionDate": "Timestamp",
+                        "TransitionInDays": 123
+                    }
+                ],
+                "Id": "test",
+                "Prefix": "test",
+                "Status": "Enabled",
+                "TagFilters": {
+                    "test_key": "test_value"
+                }
+            }
+        ]}
+        expected = {'LifecycleConfiguration': {
+            'Rules': [{
+                'AbortIncompleteMultipartUpload': {
+                    'DaysAfterInitiation': 123},
+                'ExpirationDate': 1234,
+                'ExpirationInDays': 123,
+                'Id': 'test',
+                'NoncurrentVersionExpirationInDays': 123,
+                'Prefix': 'test',
+                'Status': 'Enabled',
+                'TagFilters': [
+                    {'Key': 'test_key','Value': 'test_value'}],
+                'Transitions': [{'StorageClass': 'DEEP_ARCHIVE',
+                'TransitionDate': 'Timestamp',
+                'TransitionInDays': 123}]}]}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+    
+    def test_get_lifecycle_configuration_abort_incomplete_multipart_upload(self):
+        """ Test Success: Lifecycle configuration added with abort incomplete
+        multipart upload property """
+        test_payload = {
+            "LifecycleConfiguration": [{
+                "AbortIncompleteMultipartUpload": 123,
+                "Id": "test-id",
+                "Prefix": "test-prefix",
+                "Status": "Enabled"
+            }]
+        }
+        expected = {
+            'LifecycleConfiguration': {
+                'Rules': [{
+                    'AbortIncompleteMultipartUpload': {
+                        'DaysAfterInitiation': 123},
+                    'Id': 'test-id',
+                    'Prefix': 'test-prefix',
+                    'Status': 'Enabled'}]}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_lifecycle_configuration_expiration_date(self):
+        """ Test Success: Lifecycle configuration added with expiration date property """
+        test_payload = {
+            "LifecycleConfiguration": [{
+                "ExpirationDate": "1241241212",
+                "Id": "test-id",
+                "Prefix": "test-prefix",
+                "Status": "Enabled"
+            }]
+        }
+        expected = {'LifecycleConfiguration': 
+            {'Rules': [{'ExpirationDate': "1241241212", 'Id': 'test-id', 
+                'Prefix': 'test-prefix', 'Status': 'Enabled'}]}}
+        self.mock_s3_cf.set_payload(test_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_template()
+        assert sut == expected
+
+    def test_get_lifecycle_configuration_expiration_in_days(self):
+        """ Test Success: Lifecycle configuration added with expiration in days property """
+        test_payload = {
+            "LifecycleConfiguration": [{
+                "ExpirationInDays": 123,
+                "Id": "test-id",
+                "Prefix": "test-prefix",
+                "Status": "Enabled"
+            }]
+        }
+        expected = {'LifecycleConfiguration': 
+            {'Rules': [{'ExpirationInDays': 123, 'Id': 'test-id', 
+                'Prefix': 'test-prefix', 'Status': 'Enabled'}]}}
         self.mock_s3_cf.set_payload(test_payload)
         self.mock_s3_cf.set_template()
         sut = self.mock_s3_cf.get_template()

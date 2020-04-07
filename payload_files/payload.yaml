@@ -90,7 +90,7 @@ Resources:
           Transitions:
               # Either transistion date or days
             - StorageClass: DEEP_ARCHIVE | GLACIER | INTELLIGENT_TIERING | ONEZONE_IA | STANDARD_IA
-              TransitionDate : Timestamp S3 performs transistion to Storage Clas,
+              TransitionDate : Timestamp S3 performs transistion to Storage Class,
               TransitionInDays: Integer days before S3 performs transistion to Storage Class
           # Not Required
           Id: "LicecycleRuleId"

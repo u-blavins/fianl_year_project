@@ -275,6 +275,7 @@ class S3_CF:
                     destination['Prefix'] = dest['Prefix']
                 if "BucketArn" in dest:
                     destination['BucketArn'] = dest['BucketArn']
+                    destination['Format'] = "CSV"
                     inventory['Destination'] = destination
             if "OptionalFields" in configuration:
                 opt_fields = []
@@ -287,7 +288,7 @@ class S3_CF:
             if "Prefix" in configuration:
                 inventory['Prefix'] = configuration['Prefix']
             if "Enabled" in configuration:
-                if configuration['Enabled'] in [True, False]:
+                if configuration['Enabled'] or not configuration['Enabled']:
                     inventory['Enabled'] = configuration['Enabled']
             if "Id" in configuration:
                 inventory['Id'] = configuration['Id']
