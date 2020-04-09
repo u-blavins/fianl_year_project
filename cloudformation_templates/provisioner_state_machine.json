@@ -1,0 +1,82 @@
+{
+    "Comment": "Infrastructure Provisioner State Machine",
+    "StartAt": "ValidatePayload",
+    "States": {
+        "ValidatePayload": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.GovernanceEnabled",
+                    "StringEquals": "ENABLED",
+                    "Next": "ProcessGovernance"
+                },
+                {
+                    "Variable": "$.GovernanceEnabled",
+                    "StringEquals": "SUSPENDED",
+                    "Next": "ProcessPayload"
+                }
+            ]
+        },
+        "ProcessGovernance": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.Option",
+                    "StringEquals": "VALIDATION",
+                    "Next": "ValidateGovernedTemplate"
+                },
+                {
+                    "Variable": "$.Option",
+                    "StringEquals": "DEPLOY",
+                    "Next": "DeployGovernedTemplate"
+                }
+            ]
+
+        },
+        "ProcessPayload": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.Option",
+                    "StringEquals": "VALIDATION",
+                    "Next": "ValidateTemplate"
+                },
+                {
+                    "Variable": "$.Option",
+                    "StringEquals": "DEPLOY",
+                    "Next": "DeployTemplate"
+                }
+            ]
+        },
+        "ValidateGovernedTemplate": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:eu-west-2:172463481696:function:ValidateGoverenedTemplate",
+            "Next": "ReturnTemplate"
+        },
+        "DeployGovernedTemplate": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:eu-west-2:172463481696:function:DeployGovernedTemplate",
+            "Next": "AuditDeployment"
+        },
+        "ValidateTemplate": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:eu-west-2:172463481696:function:ValidateTemplate",
+            "Next": "ReturnTemplate"
+        },
+        "DeployTemplate": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:eu-west-2:172463481696:function:DeployTemplate",
+            "Next": "AuditDeployment"
+        },
+        "ReturnTemplate": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:eu-west-2:172463481696:function:ReturnTemplate",
+            "End": true
+        },
+        "AuditDeployment": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:eu-west-2:172463481696:function:AuditDeployment",
+            "End": true
+        }
+    }
+}
