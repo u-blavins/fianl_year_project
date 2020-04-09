@@ -166,10 +166,10 @@ Resources:
       PublicAccessBlockConfiguration:
         # Not Required
         # All attributes stated will be set to true if present
-        - BlockPublicAcls
-        - BlockPublicPolicy
-        - IgnorePublicAcls
-        - RestrictPublicBuckets
+        BlockPublicAcls: True | False
+        BlockPublicPolicy: True | False
+        IgnorePublicAcls: True | False
+        RestrictPublicBuckets: True | False
       # Not Required
       ReplicationConfiguration:
         # Required
@@ -231,13 +231,3 @@ Resources:
             RoutingRuleCondition:
               HttpErrorCodeReturnsEquals: HTTP error code when redirect applied
               KeyPrefixEquals: Object key name prefix when redirect applied
-
-
-
-
-
-    
-
-
-
-
