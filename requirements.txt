@@ -1,6 +1,4 @@
 boto3
-pyyaml
 pytest
 mock
 pytest-cov
-flask
