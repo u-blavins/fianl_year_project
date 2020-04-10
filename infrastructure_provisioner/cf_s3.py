@@ -1,3 +1,5 @@
+from utils.response import ok
+from utils.response import not_found
 
 
 class S3_CF:
@@ -38,6 +40,12 @@ class S3_CF:
     def get_payload(self):
         """ Getter for payload attribute"""
         return self.payload
+
+    def get_bucketname(self):
+        """ Get bucket name """
+        if 'BucketName' in self.template:
+            return ok(self.template['BucketName'])
+        return not_found('Bucket name not found')
 
     def set_template(self):
         """ Construct Resource for the CloudFormation template from payload """

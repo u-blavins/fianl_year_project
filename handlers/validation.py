@@ -1,5 +1,7 @@
 import json
 
+from infrastructure_provisioner.cf_s3 import S3_CF
+from infrastructure_provisioner.cf_builder import CF_BUILDER
 
 def validate_governed_payload_handler(event, context):
     """ Lambda handler to validate a payload, construct a
@@ -35,7 +37,17 @@ def validate_payload_handler(event, context):
         response (dict): response built from handler
     """
 
-    template = event['Template']
+    payload = event['Payload']
+    cf_builder = CF_BUILDER()
+    s3_cf = S3_CF(payload=payload).set_template()
+    resource = s3_cf.get_template()
+    if 'Description' in event:
+        cf_builder.set_description(event['Description'])
+    cf_builder.set_resources(
+        resource_type='S3Bucket',
+        resource=resource
+    )
+    template = cf_builder.get_template()
     env = event['Env']
 
     response = {}

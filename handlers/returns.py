@@ -18,5 +18,6 @@ def returns_handler(event, context):
     response = {}
     response['Test'] = 'Return Lambda Handler'
     response['Template'] = template
+    response['Env'] = event['Env']
 
     return response
