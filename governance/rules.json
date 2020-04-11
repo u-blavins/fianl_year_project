@@ -1,0 +1,42 @@
+{
+    "BucketEncryption": {
+        "ServerSideEncrptionConfiguration": [
+            {
+                "SeverSideEncryptionByDefault": {
+                    "Mandatory": {
+                        "SSEAlgorithm": "AES256"
+                    },
+                    "Accepted": {
+                        "SSEAlgorithm": "aws:kms",
+                        "KMSMasterKeyID": "13056591-9cca-457d-84d0-d262c4c370f0"
+                    }
+                }
+            }
+        ]
+    },
+    "VersioningConfiguration": {
+        "Status": "Enabled"
+    },
+    "PublicAccessBlockConfiguration": {
+        "Mandatory": {
+            "BlockPublicAcls": true,
+            "BlockPublicPolicy": true,
+            "IgnorePublicAcls": true,
+            "RestrictPublicBuckets": true
+        },
+        "Accepted": {
+            "BlockPublicAcls": true,
+            "BlockPublicPolicy": false,
+            "IgnorePublicAcls": true,
+            "RestrictPublicBuckets": false
+        }
+    },
+    "AccessControl": {
+        "Mandatory": [
+            "bucket-owner-full-control"
+        ],
+        "Accepted": [
+            "private"
+        ]
+    }
+}
