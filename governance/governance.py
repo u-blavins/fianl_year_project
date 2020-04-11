@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 
 
 class GOVERNANCE:
@@ -63,6 +64,12 @@ class S3_GOVERNANCE:
             props = self.rules[rule]
             if rule == 'BucketEncryption':
                 self.bucket_encryption(props)
+            if rule == 'VersioningConfiguration':
+                self.version_configuration(props)
+            if rule == 'PublicAccessBlockConfiguration':
+                self.public_access(props)
+            if rule == 'AccessControl':
+                self.access_control(props)
 
     def bucket_encryption(self, props):
         """ Method that governs bucket encryption configuration 
@@ -70,30 +77,27 @@ class S3_GOVERNANCE:
         Args:
             props (dict): governance properties
         """
-        encryption_rule = props['ServerSideEncrptionConfiguration'][0]\
-                    ['SeverSideEncryptionByDefault']
+        encryption_rule = \
+            props['ServerSideEncryptionConfiguration'][0]\
+            ['ServerSideEncryptionByDefault']
+        
         mandatory = encryption_rule['Mandatory']
         accepted = encryption_rule['Accepted']
+        
         if 'BucketEncryption' in self.res_property:
-            encryption = self.res_property['BucketEncryption']\
-                ['ServerSideEncrptionConfiguration'][0]\
-                    ['SeverSideEncryptionByDefault']
+            encryption = \
+                self.res_property['BucketEncryption']\
+                ['ServerSideEncryptionConfiguration'][0]\
+                ['ServerSideEncryptionByDefault']
+
             if encryption != mandatory and encryption != accepted:
-                self.res_property['BucketEncrpytion'] = {
-                    'ServerSideEncrptionConfiguration': [
-                        {
-                            'SeverSideEncryptionByDefault': mandatory
-                        }
-                    ]
-                }
+                self.res_property['BucketEncryption'] = {
+                    'ServerSideEncryptionConfiguration': [
+                        {'ServerSideEncryptionByDefault': mandatory}]}
         else:
             self.res_property['BucketEncryption'] = {
-                'ServerSideEncrptionConfiguration': [
-                    {
-                        'SeverSideEncryptionByDefault': mandatory
-                    }
-                ]
-            }
+                'ServerSideEncryptionConfiguration': [
+                    {'ServerSideEncryptionByDefault': mandatory}]}
 
     def load_rules(self):
         """ Load Governance policies """
@@ -114,13 +118,24 @@ def main():
             "Bucket": {
                 "Type": "AWS::S3::Bucket",
                 "Properties": {
-                    "BucketName": "test-bucket"
+                    "BucketName": "test-bucket",
+                    "BucketEncryption": {
+                        "ServerSideEncryptionConfiguration": [
+                            {
+                                "ServerSideEncryptionByDefault": {
+                                    "Test": "Test"
+                                }
+                            }
+                        ]
+                    }
                 }
             }
         }
     }
 
+    before = deepcopy(test_template)
     governance = GOVERNANCE(template=test_template)
+    print(json.dumps(before, indent=4))
     print(json.dumps(test_template, indent=4))
 
 main()
