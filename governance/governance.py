@@ -1,5 +1,4 @@
 import json
-from copy import deepcopy
 
 
 class Governance:
@@ -43,7 +42,7 @@ class Governance:
             if resource_type not in self.resources:
                 self.resources[resource_type] = res_property
             
-    def governance_handler(self):
+    def validate(self):
         """ Handles reources to perform governance checks """
         for resource in self.resources.keys():
             if self.resource_types[resource] == 'S3':
@@ -68,7 +67,7 @@ class S3_Governance:
     def load_rules(self):
         """ Load Governance policies """
         rules = {}
-        with open('rules.json') as file:
+        with open('governance/rules.json') as file:
             rules = json.load(file)
         return rules
 
