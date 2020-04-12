@@ -63,7 +63,7 @@ class TestS3_CF:
 
     def test_get_access_control_adds_access_control(self):
         """ Test Success: Access control set within template """
-        test_payload = {"AccessControl": "private"}
+        test_payload = {"AccessControl": "Private"}
         expected = test_payload
         self.mock_s3_cf.set_payload(test_payload)
         self.mock_s3_cf.set_template()

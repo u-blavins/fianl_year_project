@@ -32,9 +32,9 @@
         }
     },
     "AccessControl": {
-        "Mandatory": "bucket-owner-full-control",
+        "Mandatory": "BucketOwnerFullControl",
         "Accepted": [
-            "private"
+            "Private"
         ]
     }
 }

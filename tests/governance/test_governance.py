@@ -315,7 +315,7 @@ class TestS3_Gov:
     def test_access_control_validates_no_access_control(self):
         """ Test Success: Validates no access control and sets mandatory """
         test_template = deepcopy(self.mock_template)
-        expected_mandatory = 'bucket-owner-full-control'
+        expected_mandatory = 'BucketOwnerFullControl'
         self.mock_governance.set_template(template=test_template)
         self.mock_governance.get_resources()
         self.mock_governance.validate()
@@ -328,7 +328,7 @@ class TestS3_Gov:
         test_template = deepcopy(self.mock_template)
         properties = test_template['Resources']['Bucket']['Properties']
         properties['AccessControl'] = 'test'
-        expected_mandatory = 'bucket-owner-full-control'
+        expected_mandatory = 'BucketOwnerFullControl'
         self.mock_governance.set_template(template=test_template)
         self.mock_governance.get_resources()
         self.mock_governance.validate()
@@ -339,8 +339,8 @@ class TestS3_Gov:
         """ Test Success: Validates mandatory access control """
         test_template = deepcopy(self.mock_template)
         properties = test_template['Resources']['Bucket']['Properties']
-        properties['AccessControl'] = 'bucket-owner-full-control'
-        expected_mandatory = 'bucket-owner-full-control'
+        properties['AccessControl'] = ' BucketOwnerFullControl'
+        expected_mandatory = 'BucketOwnerFullControl'
         self.mock_governance.set_template(template=test_template)
         self.mock_governance.get_resources()
         self.mock_governance.validate()
@@ -351,8 +351,8 @@ class TestS3_Gov:
         """ Test Success: Validates accepted access control """
         test_template = deepcopy(self.mock_template)
         properties = test_template['Resources']['Bucket']['Properties']
-        properties['AccessControl'] = 'private'
-        expected_accepted = 'private'
+        properties['AccessControl'] = 'Private'
+        expected_accepted = 'Private'
         self.mock_governance.set_template(template=test_template)
         self.mock_governance.get_resources()
         self.mock_governance.validate()

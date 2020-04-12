@@ -6,7 +6,7 @@ Resources:
       # Not Required
       AccelerateConfiguration: Enabled | Suspended
       # Not Required
-      AccessControl: private | public-read | public-read-write | aws-exec-read | authenticated-read | bucket-owner-read | bucket-owner-full-control | log-delivery-write
+      AccessControl: Private | PublicRead | PublicReadWrite | AuthenticatedRead | LogDeliveryWrite | BucketOwnerRead | BucketOwnerFullControl | AwsExecRead
       # Not Required
       AnalyticsConfiguration:
         # Required

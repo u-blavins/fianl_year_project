@@ -3,6 +3,8 @@ import boto3
 
 from infrastructure_provisioner.cf_builder import CF_BUILDER
 from infrastructure_provisioner.cf_s3 import S3_CF
+from governance.governance import Governance
+
 from utils.response import ok
 from utils.response import bad_request
 
@@ -18,7 +20,34 @@ def deploy_governed_template_handler(event, context):
         response (dict): response built from handler
     """
 
-    template = event['Template']
+    payload = event['Payload']
+    env = event['Env']
+    cf_builder = CF_BUILDER()
+    s3_cf = S3_CF(payload=payload)
+    s3_cf.set_template()
+    resource = s3_cf.get_template()
+
+    if 'Description' in event:
+        cf_builder.set_description(event['Description'])
+    cf_builder.set_resources(
+        resource_type='S3Bucket',
+        resource=resource
+    )
+    template = cf_builder.get_template()
+
+    governance = Governance()
+    governance.set_template(template=template)
+    governance.get_resources()
+    governance.validate()
+    
+    template = governance.get_template()
+
+    if s3_cf.get_bucketname()['ResponseCode'] == 200:
+        stackname = 's3-{}'.format(
+            s3_cf.get_bucketname()['Message'])
+        create_cloudformation(
+            stack=stackname,
+            template=template)
 
     response = {}
     response['Test'] = 'Deploy Governance Lambda Handler'

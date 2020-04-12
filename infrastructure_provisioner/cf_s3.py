@@ -143,9 +143,9 @@ class S3_CF:
             arg (dict): a given payload
         """
         accepted_options = [
-            "private", "public-read", "public-read-write",
-            "aws-exec-read", "authenticated-read", "bucket-owner-read",
-            "bucket-owner-full-control", "log-delivery-write"
+            "Private", "PublicRead", "PublicReadWrite",
+            "AwsExecRead", "AuthenticatedRead", "BucketOwnerRead",
+            "BucketOwnerFullControl", "LogDeliveryWrite"
         ]
         bucket_property = self.payload[arg]
         if isinstance(bucket_property, str):

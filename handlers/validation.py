@@ -2,6 +2,8 @@ import json
 
 from infrastructure_provisioner.cf_s3 import S3_CF
 from infrastructure_provisioner.cf_builder import CF_BUILDER
+from governance.governance import Governance
+
 
 def validate_governed_payload_handler(event, context):
     """ Lambda handler to validate a payload, construct a
@@ -15,8 +17,27 @@ def validate_governed_payload_handler(event, context):
         response (dict): response built from handler
     """
 
-    template = event['Template']
+    payload = event['Payload']
     env = event['Env']
+    cf_builder = CF_BUILDER()
+    s3_cf = S3_CF(payload=payload)
+    s3_cf.set_template()
+    resource = s3_cf.get_template()
+
+    if 'Description' in event:
+        cf_builder.set_description(event['Description'])
+    cf_builder.set_resources(
+        resource_type='S3Bucket',
+        resource=resource
+    )
+    template = cf_builder.get_template()
+
+    governance = Governance()
+    governance.set_template(template=template)
+    governance.get_resources()
+    governance.validate()
+    
+    template = governance.get_template()
 
     response = {}
     response['Test'] = 'Validation Governance Lambda Handler'
@@ -39,8 +60,10 @@ def validate_payload_handler(event, context):
 
     payload = event['Payload']
     cf_builder = CF_BUILDER()
-    s3_cf = S3_CF(payload=payload).set_template()
+    s3_cf = S3_CF(payload=payload)
+    s3_cf.set_template()
     resource = s3_cf.get_template()
+    
     if 'Description' in event:
         cf_builder.set_description(event['Description'])
     cf_builder.set_resources(
