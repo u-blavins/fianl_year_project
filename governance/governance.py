@@ -2,19 +2,26 @@ import json
 from copy import deepcopy
 
 
-class GOVERNANCE:
+class Governance:
     """ Class for applying governance to CloudFormation Templates """
 
     def __init__(self, template={}):
         """ Instantiate Object """
         self.resource_types = {
             'AWS::S3::Bucket': 'S3',
-            'AWS::S3::BucketPolicy': 'S3' 
+            'AWS::S3::BucketPolicy': 'S3'
         }
         self.template = template
         self.resources = {}
+
+    def set_template(self, template):
+        """ Set the CloudFormation Template """
+        self.template = template
         self.get_all_resources()
-        self.governance_handler()
+
+    def get_template(self):
+        """ Getter for the CloudFormation Template """
+        return self.template
 
     def get_resources(self):
         """ Getter for resources within a CloudFormation Template """
@@ -40,12 +47,12 @@ class GOVERNANCE:
         """ Handles reources to perform governance checks """
         for resource in self.resources.keys():
             if self.resource_types[resource] == 'S3':
-                s3_governance = S3_GOVERNANCE(
+                s3_governance = S3_Governance(
                     resource, self.resources[resource])
                 s3_governance.s3_handler()
 
 
-class S3_GOVERNANCE:
+class S3_Governance:
     """ Class that governs S3 resource types """
     
     def __init__(self, res_type, res_property):
@@ -58,23 +65,31 @@ class S3_GOVERNANCE:
         if self.res_type == 'AWS::S3::Bucket':
             self.s3_bucket_governance()
 
+    def load_rules(self):
+        """ Load Governance policies """
+        rules = {}
+        with open('rules.json') as file:
+            rules = json.load(file)
+        return rules
+
     def s3_bucket_governance(self):
         """ Govern S3 Bucket properties """
         for rule in self.rules.keys():
             props = self.rules[rule]
             if rule == 'BucketEncryption':
-                self.bucket_encryption(props)
+                self.bucket_encryption(rule, props)
             if rule == 'VersioningConfiguration':
-                self.version_configuration(props)
+                self.version_configuration(rule, props)
             if rule == 'PublicAccessBlockConfiguration':
-                self.public_access(props)
+                self.public_access(rule, props)
             if rule == 'AccessControl':
-                self.access_control(props)
+                self.access_control(rule, props)
 
-    def bucket_encryption(self, props):
+    def bucket_encryption(self, config, props):
         """ Method that governs bucket encryption configuration 
         
         Args:
+            config (str): configuration option
             props (dict): governance properties
         """
         encryption_rule = \
@@ -86,56 +101,70 @@ class S3_GOVERNANCE:
         
         if 'BucketEncryption' in self.res_property:
             encryption = \
-                self.res_property['BucketEncryption']\
+                self.res_property[config]\
                 ['ServerSideEncryptionConfiguration'][0]\
                 ['ServerSideEncryptionByDefault']
 
             if encryption != mandatory and encryption != accepted:
-                self.res_property['BucketEncryption'] = {
+                self.res_property[config] = {
                     'ServerSideEncryptionConfiguration': [
                         {'ServerSideEncryptionByDefault': mandatory}]}
         else:
-            self.res_property['BucketEncryption'] = {
+            self.res_property[config] = {
                 'ServerSideEncryptionConfiguration': [
                     {'ServerSideEncryptionByDefault': mandatory}]}
 
-    def load_rules(self):
-        """ Load Governance policies """
-        rules = {}
-        with open('rules.json') as file:
-            rules = json.load(file)
-        return rules
+    def version_configuration(self, config, props):
+        """ Method that governs version configuration on a bucket
 
-    def get_rules(self):
-        """ Getter for governance rules """
-        return self.rules
+        Args:
+            config (str): configuration option
+            props (dict): governance properties
+        """
+        if 'VersioningConfiguration' in self.res_property:
+            versioning = self.res_property[config]
+            if versioning != props:
+                self.res_property[comfig] = props
+        else:
+            self.res_property[config] = props
 
-def main():
-    """ Main Function for local testing """
+    def public_access(self, config, props):
+        """ Method that governs public access configuration on
+        a bucket
 
-    test_template = {
-        "Resources": {
-            "Bucket": {
-                "Type": "AWS::S3::Bucket",
-                "Properties": {
-                    "BucketName": "test-bucket",
-                    "BucketEncryption": {
-                        "ServerSideEncryptionConfiguration": [
-                            {
-                                "ServerSideEncryptionByDefault": {
-                                    "Test": "Test"
-                                }
-                            }
-                        ]
-                    }
-                }
-            }
-        }
-    }
+        Args:
+            config (str): configuration option
+            props (dict): governance properties
+        """
+        mandatory = props['Mandatory']
+        accepted = props['Accepted']
 
-    before = deepcopy(test_template)
-    governance = GOVERNANCE(template=test_template)
-    print(json.dumps(before, indent=4))
-    print(json.dumps(test_template, indent=4))
 
-main()
+        if 'PublicAccessBlockConfiguration' in self.res_property:
+            public_block = self.res_property[config]
+
+            if public_block != mandatory and public_block != accepted:
+                self.res_property[config] = mandatory
+        else:
+            self.res_property[config] = mandatory
+
+    def access_control(self, config, props):
+        """ Method that governs access control on a bucket
+
+        Args:
+            config (str): configuration option
+            props (dict): governance properties
+        """
+        mandatory = props['Mandatory']
+        accepted = props['Accepted']
+        allowed = []
+        allowed.extend(mandatory)
+        allowed.extend(accepted)
+
+        if 'AccessControl' in self.res_property:
+            access_control = self.res_property[config]
+
+            if access_control not in allowed:
+                self.res_property[config] = mandatory
+        else:
+            self.res_property[config] = mandatory
