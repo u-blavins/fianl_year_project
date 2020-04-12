@@ -70,6 +70,10 @@ class S3_Governance:
         with open('governance/rules.json') as file:
             rules = json.load(file)
         return rules
+    
+    def get_rules(self):
+        """ Getter for governance rules """
+        return self.rules
 
     def s3_bucket_governance(self):
         """ Govern S3 Bucket properties """
@@ -123,7 +127,7 @@ class S3_Governance:
         if 'VersioningConfiguration' in self.res_property:
             versioning = self.res_property[config]
             if versioning != props:
-                self.res_property[comfig] = props
+                self.res_property[config] = props
         else:
             self.res_property[config] = props
 
