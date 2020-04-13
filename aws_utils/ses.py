@@ -1,7 +1,7 @@
 import boto3
 import json
 
-from s3 import S3
+from aws_utils.s3 import S3
 
 class SES:
     """ Class for the Simple Email Service """
@@ -79,22 +79,3 @@ class Message:
             'Subject': self.subject,
             'Body': self.body
         }
-
-
-
-def main():
-    ses = SES()
-    test_template = {
-        'Resources': {
-            'Bucket': {
-                'Type': 'AWS::S3::Bucket',
-                'Properties': {
-                    'BucketName': 'test-bucket-name',
-                    'Test': 'test' 
-                }
-            }
-        }
-    }
-    ses.upload_cft_deploy_email(test_template, 'eu-west-2')
-
-main()

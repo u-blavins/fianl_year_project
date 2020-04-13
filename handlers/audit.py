@@ -17,7 +17,7 @@ def audit_handler(event, context):
         response (dict): response built from handler
     """
 
-    env = event['Environment']
+    env = event['Env']
     template = event['Template']
     upload = backup_cft(env=env, template=template)
     email = email_account_owner(template=template)
