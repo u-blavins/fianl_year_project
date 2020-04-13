@@ -24,15 +24,16 @@ class SES:
         message = Message()
         message.set_subject(email_subject)
         message.set_body('Text', email_message)
-        self.send_ses_email(message=message.get_message())
+        return self.send_ses_email(message=message.get_message())
 
     def send_ses_email(self, message):
         """ Send an email using SES SMTP server """
-        self.client.send_email(
+        return self.client.send_email(
             Source=self.source,
             Destination={'ToAddresses':self.recipients},
             Message=message
         )
+        
 
     def set_source(self, source):
         """ Setter for source email address """

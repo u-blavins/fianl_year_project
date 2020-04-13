@@ -1,7 +1,9 @@
 import json
+
 from utils.response import ok
 from utils.response import bad_request
-
+from aws_utils.s3 import S3
+from aws_utils.ses import SES
 
 def audit_handler(event, context):
     """ Lambda handler to handle audit of the deployment
@@ -40,7 +42,22 @@ def backup_cft(env, template):
     Returns:
         response (dict): response to performing backup
     """
-    return ok("mimic what backup would do")
+    backup_bucket = S3()
+    try:
+        resp = backup_bucket.backup_cloudformation_temlates(
+        template=template)
+
+        status = resp['ResponseMetaData']['HTTPStatusCode']
+
+        if status == 200:
+            response = ok("Bucket successfully backed up to S3")
+        if status == 400:
+            response = bad_request("Not able to back up to S3")
+
+    except:
+        response = bad_request('Issue connecting to S3')
+
+    return response
 
 def email_account_owner(template):
     """ Function that sends a notification to account owner 
@@ -53,4 +70,19 @@ def email_account_owner(template):
     Returns:
         response (dict): response to performing backup
     """
-    return ok("mimic what email would do")
+    ses = SES()
+
+    try: 
+        resp = ses.upload_cft_deploy_email(template=template)
+
+        status = resp['ResponseMetaData']['HTTPStatusCode']
+
+        if status == 200:
+            response = ok("Email sent to account owner")
+        if status == 400:
+            response = bad_request("Email not sent")
+
+    except:
+        response = bad_request("Issue with connecting to SES")
+    
+    return response

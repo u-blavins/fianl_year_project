@@ -41,3 +41,21 @@ class S3:
                     if 'BucketName' in properties:
                         return properties['BucketName']
         return
+
+def main():
+    s3 = S3()
+    template = {
+        'Resources': {
+            'Bucket': {
+                'Type': 'AWS::S3::Bucket',
+                'Properties': {
+                    'BucketName': 'test-bucket-name'
+                }
+            }
+        }
+    }
+    response = s3.backup_cloudformation_temlates(template)
+
+    print(json.dumps(response, indent=4))
+
+main()
