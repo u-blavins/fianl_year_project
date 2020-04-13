@@ -1,0 +1,4 @@
+{
+    "input": "{\"GovernanceEnabled\": $util.escapeJavaScript($input.json('governance')), \"Option\": $util.escapeJavaScript($input.json('option')), \"Payload\": $util.escapeJavaScript($input.json('payload')), \"Env\": $util.escapeJavaScript($input.json('env'))}",
+    "stateMachineArn": "arn:aws:states:eu-west-2:172463481696:stateMachine:InfrastructureProvisionerStateMachine"
+}

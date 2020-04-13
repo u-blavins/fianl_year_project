@@ -1,0 +1,12 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "ProvisionerModel",
+    "type": "object",
+    "properties": {
+        "governance": {"type": "string"},
+        "option": {"type": "string"},
+        "payload": {"type": "object"},
+        "env": {"type": "string"}
+    },
+    "required": ["governance", "option", "payload", "env"]
+}
