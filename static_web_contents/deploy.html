@@ -23,9 +23,8 @@
         </nav>
         <form id="regForm" action="">
 
-            <h1>Deploy S3 Bucket</h1>
+            <h1>Simple Storage Service</h1>
             
-            <!-- One "tab" for each step in the form: -->
             <div class="tab">
                 <h5>Bucket name:</h5>
                 <p><input placeholder="Bucket name" oninput="this.className = ''"></p>
@@ -34,10 +33,10 @@
             <div class="tab">
                 <h5>Accelerate Configuration:</h5>
                 <div class="input-field col s12">
-                    <select>
-                      <option value="">Choose Access Control</option>
-                      <option value="AuthenticatedRead">AuthenticatedRead</option>
-                      <option value="AuthenticatedRead">AuthenticatedRead</option>
+                    <select id='accelerateConfig'>
+                      <option value="">Choose Access Control Status</option>
+                      <option value="Enabled">Enabled</option>
+                      <option value="Suspended">Suspended</option>
                     </select>
                 </div>
             </div>
@@ -45,7 +44,7 @@
             <div class="tab">
                 <h5>Access Control:</h5>
                 <div class="input-field col s12">
-                    <select>
+                    <select id='accessControl'>
                       <option value="">Choose Access Control</option>
                       <option value="AuthenticatedRead">AuthenticatedRead</option>
                       <option value="AwsExecRead">AwsExecRead</option>
@@ -61,9 +60,20 @@
             
             <div class="tab">
                 <h5>Analytics Configuration:</h5>
-                <p><input placeholder="dd" oninput="this.className = ''"></p>
-                <p><input placeholder="mm" oninput="this.className = ''"></p>
-                <p><input placeholder="yyyy" oninput="this.className = ''"></p>
+                <p><input placeholder="Id (Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
+                <h6>Destination</h6>
+                <p><input placeholder="Bucket Account ID (Not Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Bucket Arn (Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
+                <h6>Tags</h6>
+                <p><input placeholder="key=value, (Not Required)" oninput="this.className = ''"></p>
+                <p>
+                    <label>
+                      <input id="analyticConfig" type="checkbox" class="filled-in" />
+                      <span>Enable Analytics</span>
+                    </label>
+                  </p>
             </div>
             
             <div class="tab">Login Info:

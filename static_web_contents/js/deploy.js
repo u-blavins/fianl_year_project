@@ -56,7 +56,11 @@ function validateForm() {
     if (config == "BucketName") {
         valid = validateBucketName(x, config);
     } else if (config == "AccelerateConfiguration") {
-        valid = validateBucketName(x, config);
+        valid = validateAccelerateConfiguration(config);
+    } else if (config == "AccessControl") {
+        valid = validateAccessControl(config);
+    } else if (config == "AnalyticsConfiguration") {
+        valid = validateAnalyticsConfiguration(x, config);
     }
 
     if (valid) {
@@ -68,11 +72,86 @@ function validateForm() {
 function validateBucketName(x, config) {
     valid = true;
     y = x[currentTab].getElementsByTagName("input");
-    if (y[0].value == "") {
+    if (y[0].value == "" || y[0].value != y[0].value.toLowerCase()) {
         y[0].className += " invalid";
         valid = false;
+    } else {
+        payload[config] = y[0].value;
+        console.log(payload);
     }
     return valid;
+}
+
+function validateAccelerateConfiguration(config) {
+    valid = true;
+    option = document.getElementById("accelerateConfig").options.selectedIndex;
+    choice = document.getElementById("accelerateConfig").options[option].value;
+    if (choice != "") {
+        payload[config] = choice;
+    } else {
+        if (config in payload) {
+            delete payload[config];
+        }
+    }
+    console.log(payload);
+    return valid;
+}
+
+function validateAccessControl(config) {
+    valid = true;
+    option = document.getElementById("accessControl").options.selectedIndex;
+    choice = document.getElementById("accessControl").options[option].value;
+    if (choice != "") {
+        payload[config] = choice;
+    } else {
+        if (config in payload) {
+            delete payload[config];
+        }
+    }
+    console.log(payload);
+    return valid;
+}
+
+function validateAnalyticsConfiguration(x, config) {
+    var analytic = {}
+    var destination = {}
+    var tags = {}
+    valid = true;
+    enabled = document.getElementById("analyticConfig").checked;
+    y = x[currentTab].getElementsByTagName("input");
+    if (enabled) {
+        if (y[0].value == "") {
+            y[0].className += " invalid";
+            valid = false;
+        } else { analytic["Id"] = y[0].value; }
+        if (y[1].value != "") { analytic["Prefix"] = y[1].value; }
+        if (y[2].value != "") { destination["BucketAccountId"] = y[2].value; }
+        if (y[3].value == "") {
+            y[3].className += " invalid";
+            valid = false;
+        } else { destination["BucketArn"] = y[3].value; }
+        if (y[4].value != "") { destination["Prefix"] = y[4].value; }
+        if (y[5].value != "") { 
+            tags = returnTags(y[5].value);
+            if (tags != {}) { analytic["TagFilters"] = tags }
+        }
+        if ("Id" in analytic && "BucketArn" in destination) {
+            analytic["Destination"] = destination;
+            payload["AnalyticsConfiguration"] = analytic;
+            console.log(payload);
+        }
+    }
+    return valid;
+}
+
+function returnTags(tagStrings) {
+    tagFilters = {}
+    tags = tagStrings.split(",");
+    for (var i = 0; i < tags.length; i++) {
+        keyValue = tags[i].split("=");
+        tagFilters[keyValue[0]] = keyValue[1];
+    }
+    return tagFilters;
 }
 
 function fixStepIndicator(n) {

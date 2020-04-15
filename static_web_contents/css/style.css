@@ -11,6 +11,10 @@
     margin-right: 10px;
 }
 
+#nav-mobile a {
+    font-size: large;
+}
+
 #nav-mobile a:hover {
     color: #ec7211;
 }
