@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Infrastrucure Provisioner</title>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link rel="stylesheet" href="css/style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"/>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    </head>
+    <body>
+        <nav>
+            <div class="nav-wrapper">
+                <a href="index.html" class="brand-logo">Infrastructure Provisioner</a>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a href="deploy.html">Deploy</a></li>
+                    <li><a href="#">Architecture</a></li>
+                    <li><a href="#">API</a></li>
+                </ul>
+            </div>
+        </nav>
+        <form id="regForm" action="">
+
+            <h1>Deploy S3 Bucket</h1>
+            
+            <!-- One "tab" for each step in the form: -->
+            <div class="tab">
+                <h5>Bucket name:</h5>
+                <p><input placeholder="Bucket name" oninput="this.className = ''"></p>
+            </div>
+
+            <div class="tab">
+                <h5>Accelerate Configuration:</h5>
+                <div class="input-field col s12">
+                    <select>
+                      <option value="">Choose Access Control</option>
+                      <option value="AuthenticatedRead">AuthenticatedRead</option>
+                      <option value="AuthenticatedRead">AuthenticatedRead</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="tab">
+                <h5>Access Control:</h5>
+                <div class="input-field col s12">
+                    <select>
+                      <option value="">Choose Access Control</option>
+                      <option value="AuthenticatedRead">AuthenticatedRead</option>
+                      <option value="AwsExecRead">AwsExecRead</option>
+                      <option value="BucketOwnerFullControl">BucketOwnerFullControl</option>
+                      <option value="BucketOwnerRead">BucketOwnerRead</option>
+                      <option value="LogDeliveryWrite">LogDeliveryWrite</option>
+                      <option value="Private">Private</option>
+                      <option value="PublicRead">PublicRead</option>
+                      <option value="PublicReadWrite">PublicReadWrite</option>
+                    </select>
+                  </div>
+            </div>
+            
+            <div class="tab">
+                <h5>Analytics Configuration:</h5>
+                <p><input placeholder="dd" oninput="this.className = ''"></p>
+                <p><input placeholder="mm" oninput="this.className = ''"></p>
+                <p><input placeholder="yyyy" oninput="this.className = ''"></p>
+            </div>
+            
+            <div class="tab">Login Info:
+                <p><input placeholder="Username..." oninput="this.className = ''"></p>
+                <p><input placeholder="Password..." oninput="this.className = ''"></p>
+            </div>
+            
+            <div style="overflow:auto;">
+                <div style="float:right;">
+                    <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                </div>
+            </div>
+            
+            <!-- Circles which indicates the steps of the form: -->
+            <div style="text-align:center;margin-top:40px;">
+              <span class="step"></span>
+              <span class="step"></span>
+              <span class="step"></span>
+              <span class="step"></span>
+              <span class="step"></span>
+            </div>
+            
+            </form>
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+        <script src="js/deploy.js"></script>
+        <script type="text/javascript">
+            M.AutoInit();
+        </script>
+    </body>
+</html>
