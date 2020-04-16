@@ -130,7 +130,7 @@
                     <select>
                         <option value="">Choose Inventory Status</option>
                         <option value="Enabled">Enabled</option>
-                        <option value="Suspended">Suspended</option>
+                        <option value="Disabled">Disabled</option>
                     </select>
                 </div>
                 <div class="input-field col s12">
@@ -171,6 +171,62 @@
                     </label>
                 </p>
             </div>
+
+            <div class="tab">
+                <h5>Lifecycle Configuration</h5>
+                <p><input placeholder="Lifecycle Id (Not Required)" oninput="this.className = ''"></p>
+                <!-- <span class="helper-text" data-error="wrong" data-success="right"></span> -->
+                <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
+                <h6>Abort Incomplete Multipart Upload (Optional)</h6>
+                <p><input type="number" placeholder="Days to abort incomplete multipart upload" oninput="this.className = ''"></p>
+                <h6>Expiration Date (Optional)</h6>
+                <p><input placeholder="Timestamp for deletion" oninput="this.className = ''"></p>
+                <h6>Expiration In Days (Optional)</h6>
+                <p><input type="number" placeholder="Days to delete current versions" oninput="this.className = ''"></p>
+                <h6>Noncurrent Version Expiration In Days (Optional)</h6>
+                <p><input type="number" placeholder="Days to delete non current versions" oninput="this.className = ''"></p>
+                <h6>Noncurrent Version Transistions (Optional)</h6>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Storage Class</option>
+                        <option value="DEEP_ARCHIVE">DEEP_ARCHIVE</option>
+                        <option value="GLACIER">GLACIER</option>
+                        <option value="INTELLIGENT_TIERING">INTELLIGENT_TIERING</option>
+                        <option value="ONEZONE_IA">ONEZONE_IA</option>
+                        <option value="STANDARD_IA">STANDARD_IA</option>
+                    </select>
+                </div>
+                <p><input type="number" placeholder="Transistion in days" oninput="this.className = ''"></p>
+                <br>
+                <h6>Transistions (Optional)</h6>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Storage Class</option>
+                        <option value="DEEP_ARCHIVE">DEEP_ARCHIVE</option>
+                        <option value="GLACIER">GLACIER</option>
+                        <option value="INTELLIGENT_TIERING">INTELLIGENT_TIERING</option>
+                        <option value="ONEZONE_IA">ONEZONE_IA</option>
+                        <option value="STANDARD_IA">STANDARD_IA</option>
+                    </select>
+                </div>
+                <p><input type="number" placeholder="Transistion date in timestamp (Optional)" oninput="this.className = ''"></p>
+                <p><input type="number" placeholder="Transistion in days (Optional)" oninput="this.className = ''"></p>
+                <h6>Tag Filters</h6>
+                <p><input placeholder="key=value, (Not Required)" oninput="this.className = ''"></p>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Choose Lifecycle Status</option>
+                        <option value="Enabled">Enabled</option>
+                        <option value="Disabled">Disabled</option>
+                    </select>
+                </div>
+                <p>
+                    <label>
+                        <input id="lifecycleConfig" type="checkbox" class="filled-in" />
+                        <span>Enable Lifecycle</span>
+                    </label>
+                </p>
+            </div>
             
             <div class="tab">Login Info:
                 <p><input placeholder="Username..." oninput="this.className = ''"></p>
@@ -186,6 +242,7 @@
             
             <!-- Circles which indicates the steps of the form: -->
             <div style="text-align:center;margin-top:40px;">
+              <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>

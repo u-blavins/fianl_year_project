@@ -8,7 +8,8 @@ var configurations = {
     3: 'AnalyticsConfiguration',
     4: 'BucketEncryption',
     5: 'CorsConfiguration',
-    6: 'InventoryConfigurations'
+    6: 'InventoryConfigurations',
+    7: 'LifecycleConfiguration'
 }
 
 var payload = {}
@@ -69,6 +70,8 @@ function validateForm() {
         valid = validateCorsConfiguration(x, config);
     } else if (config == "InventoryConfigurations") {
         valid = validateInventoryConfigurations(x, config);
+    } else if (config == "LifecycleConfiguration") {
+        valid = validateLifecycleConfiguration(x, config);
     }
 
     if (valid) {
@@ -181,34 +184,26 @@ function validateCorsConfiguration(x, config) {
     y = x[currentTab].getElementsByTagName("input");
     if (enabled) {
         if (y[0].value != "") { cors['Id'] = y[0].value;}
-        if (y[1].value != "") {  cors['MaxAge'] = y[1].value; }
-        if (y[2].value != "") { 
-            var headers = returnList(y[2].value);
+        if (y[1].value != "") {  cors['MaxAge'] = parseInt(y[1].value); }
+        if (y[2].value != "") { var headers = returnList(y[2].value);
             if (headers.length != 0) { cors['AllowedHeaders'] = headers; }}
         if (y[3].value != "") { 
             var headers = returnList(y[3].value); 
             if (headers.length != 0) {cors['AllowedOrigins'] = headers;}
-        } else {
-            y[3].className += " invalid";
-            valid = false;
-        }
+        } else { y[3].className += " invalid"; valid = false; }
         if (y[4].value != "") { 
             var headers = returnList(y[4].value);
             if (headers.length != 0) { cors['ExposedHeaders'] = headers; }}
-        if(y[5].value == "") {
-            y[5].className += " invalid";
-            valid=false; 
-        }
+        if(y[5].value == "") { y[5].className += " invalid"; valid=false; }
         else {
+            y[5].className = "select-dropdown dropdown-trigger";
             var headers = returnList(y[5].value);
             if (headers.length != 0) { cors['AllowedMethods'] = headers; }
         }
         if ("AllowedMethods" in cors && "AllowedOrigins" in cors) {
             payload["CorsConfiguration"] = [cors];
         } else {
-            if ("CorsConfiguration" in payload) {
-                delete payload["CorsConfiguration"];
-            }
+            if ("CorsConfiguration" in payload) { delete payload["CorsConfiguration"]; }
         }
     } else {
         if ("CorsConfiguration" in payload) {
@@ -221,6 +216,94 @@ function validateCorsConfiguration(x, config) {
 
 function validateInventoryConfigurations(x, config) {
     valid = true;
+    inventory = {}
+    destination = {}
+    enabled = document.getElementById('inventoryConfig').checked;
+    y = x[currentTab].getElementsByTagName("input");
+    if (enabled) {
+        console.log(y[5].className);
+        if (y[0].value != "") { inventory["Id"] = y[0].value; }
+        else { y[0].className += " invalid"; valid = false; }
+        if (y[1].value != "") { inventory["Prefix"] = y[1].value; }
+        if (y[2].value != "") { destination["BucketAccountId"] = y[2].value; }
+        if (y[3].value != "") { destination["BucketArn"] = y[3].value; }
+        else { y[3].className += " invalid"; valid = false; }
+        if (y[4].value != "") { destination["Prefix"] = y[4].value; }
+        if (y[5].value != "Choose Inventory Status") { 
+            y[5].className = "select-dropdown dropdown-trigger";
+            if (y[5].value == "Enabled") { inventory["Enabled"] = true; }
+            else { inventory["Enabled"] = false; }}
+        else { y[5].className += " invalid"; valid = false; }
+        if (y[6].value != "Choose Object Versions") { 
+            y[6].className = "select-dropdown dropdown-trigger";
+            inventory["IncludedObjectVersions"] = y[6].value; }
+        else { y[6].className += " invalid"; valid = false; }
+        if (y[7].value != "Choose Scheduled Frequency") { 
+            y[7].className = "select-dropdown dropdown-trigger";
+            inventory["ScheduledFrequency"] = y[7].value; }
+        else { y[7].className += " invalid"; valid = false; }
+        if (y[8].value != "") {
+            var headers = returnList(y[8].value); 
+            if (headers.length != 0) { inventory['OptionalFields'] = headers;}
+        }
+        if ("Id" in inventory && "Enabled" in inventory &&
+            "IncludedObjectVersions" in inventory && "ScheduledFrequency" in inventory &&
+            "BucketArn" in destination) {
+                inventory['Destination'] = destination;
+                payload["InventoryConfigurations"] = [inventory];
+        }
+    } else {
+        if ("InventoryConfigurations" in payload) { delete payload["InventoryConfigurations"]; }
+    }
+    console.log(payload);
+    return valid;
+}
+
+function validateLifecycleConfiguration(x, config) {
+    valid = true;
+    lifecycle = {}
+    transition = {}
+    enabled = document.getElementById('lifecycleConfig').checked;
+    y = x[currentTab].getElementsByTagName("input");
+    if (enabled) {
+        if (y[0].value != "") { lifecycle["Id"] = y[0].value;}
+        if (y[1].value != "") { lifecycle["Prefix"] = y[1].value;}
+        if (y[2].value != "") { lifecycle["AbortIncompleteMultipartUpload"] = parseInt(y[2].value);}
+        if (y[3].value != "") { lifecycle["ExpirationDate"] = y[3].value;}
+        if (y[4].value != "") { lifecycle["ExpirationInDays"] = parseInt(y[4].value);}
+        if (y[5].value != "") { lifecycle["NoncurrentVersionExpirationInDays"] = parseInt(y[5].value);}
+        if (y[6].value != "Storage Class" && y[7].value != "") {
+            lifecycle["NoncurrentVersionTransitions"] = 
+            [{StorageClass: y[6].value, TransitionInDays: y[7].value}]}
+        if (y[8].value != "Storage Class") {
+            if (y[9].value != "") {
+                transition = {StorageClass: y[8].value, TransitionDate: y[9].value};
+            } else if (y[10].value != "") {
+                transition = {StorageClass: y[8].value, TransitionInDay: y[10].value};
+            }
+            if ("TransitionDate" in transition || "TransitionInDays" in transition) {
+                lifecycle["Transitions"] = [transition]}
+        }
+        if (y[11].value != "") { lifecycle["TagFilters"] = returnTags(y[11].value);}
+        if (y[12].value != "Choose Lifecycle Status") { 
+            y[12].className = "select-dropdown dropdown-trigger";
+            lifecycle["Status"] = y[12].value; } 
+        else {
+            y[12].className += " invalid";
+            valid = false;
+        }
+        if ("Status" in lifecycle) {
+            if ("AbortIncompleteMultipartUpload" in lifecycle || "ExpirationDate" in lifecycle || "ExpirationInDays" in lifecycle ||
+            "NoncurrentVersionExpirationInDays" in lifecycle || "NoncurrentVersionTransitions" in lifecycle || "Transitions" in lifecycle ) {
+                payload["LifecycleConfiguration"] = [lifecycle];
+            } else {
+                M.toast({html: 'Choose a lifecycle configuration'})
+                valid = false;
+            }
+        }
+    } else {
+        if ("LifecycleConfiguration" in payload) { delete payload["LifecycleConfiguration"];}}
+    console.log(payload);
     return valid;
 }
 
