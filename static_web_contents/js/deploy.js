@@ -9,7 +9,10 @@ var configurations = {
     4: 'BucketEncryption',
     5: 'CorsConfiguration',
     6: 'InventoryConfigurations',
-    7: 'LifecycleConfiguration'
+    7: 'LifecycleConfiguration',
+    8: 'LoggingConfiguration',
+    9: 'MetricsConfigurations',
+    10: 'NotificationConfiguration'
 }
 
 var payload = {}
@@ -72,6 +75,12 @@ function validateForm() {
         valid = validateInventoryConfigurations(x, config);
     } else if (config == "LifecycleConfiguration") {
         valid = validateLifecycleConfiguration(x, config);
+    } else if (config == "LoggingConfiguration") {
+        valid = validateLoggingConfiguration(x, config);
+    } else if (config == "MetricsConfigurations") {
+        valid = validateMetricsConfiguration(x, config);
+    } else if (config == "NotificationConfiguration") {
+        valid = validateNotificationConfiguration(x, config);
     }
 
     if (valid) {
@@ -303,6 +312,60 @@ function validateLifecycleConfiguration(x, config) {
         }
     } else {
         if ("LifecycleConfiguration" in payload) { delete payload["LifecycleConfiguration"];}}
+    console.log(payload);
+    return valid;
+}
+
+function validateLoggingConfiguration(x, config) {
+    valid = true;
+    logging = {}
+    y = x[currentTab].getElementsByTagName("input");
+    if (y[0].value != "") {logging["DestinationBucketName"] = y[0].value}
+    if (y[1].value != "") {logging["LogFilePrefix"] = y[1].value}
+    if ("DestinationBucketName" in logging || "LogFilePrefix" in logging) {
+        payload[config] = logging;
+    }
+    console.log(payload);
+    return valid;
+}
+
+function validateMetricsConfiguration(x, config) {
+    valid = true;
+    metric = {}
+    enable = document.getElementById("metricsConfig").checked;
+    y = x[currentTab].getElementsByTagName("input");
+    if (enable) {
+        if (y[0].value != "") { metric["Id"] = y[0].value; }
+        else { y[0].className += " invalid"; valid = false; }
+        if (y[1].value != "") { metric["Prefix"] = y[1].value; }
+        if (y[2].value != "") { metric["TagFilters"] = returnTags(y[2].value); }
+        if ("Id" in metric) { payload[config] = [metric]; }
+    } else { if (config in payload) { delete payload[config]; }}
+    console.log(payload);
+    return valid;
+}
+
+function validateNotificationConfiguration(x, config) {
+    valid = true;
+    notif = "";
+    notif_config = {}
+    enable = document.getElementById("notificationConfig").checked;
+    y = x[currentTab].getElementsByTagName("input");
+    if (enable) {
+        if (y[0].value != "Choose Notification") {
+            y[0].className = "select-dropdown dropdown-trigger";
+            if (y[0].value == "Lambda") { notif = "LambdaConfigurations"; }
+            if (y[0].value == "Queue") { notif = "QueueConfigurations"; }
+            if (y[0].value == "Topic") { notif = "TopicConfigurations"; }
+        } else { y[0].className += " invalid"; valid=false; }
+        if (y[1].value != "") { notif_config["Event"] = y[1].value; }
+        else { y[1].className += " invalid"; valid = false; }
+        if (y[2].value != "Filter Name" && y[3].value != "") {
+            notif_config = { Name: y[2].value, Value: y[3].value }}
+        if (notif != "" && "Event" in notif_config) {
+            payload[config] = { notif: [notif_config] };
+        }
+    } else { if (config in payload) { delete payload[config]; }}
     console.log(payload);
     return valid;
 }

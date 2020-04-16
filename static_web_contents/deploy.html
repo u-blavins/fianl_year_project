@@ -197,7 +197,6 @@
                     </select>
                 </div>
                 <p><input type="number" placeholder="Transistion in days" oninput="this.className = ''"></p>
-                <br>
                 <h6>Transistions (Optional)</h6>
                 <div class="input-field col s12">
                     <select>
@@ -220,10 +219,55 @@
                         <option value="Disabled">Disabled</option>
                     </select>
                 </div>
+                <p><label>
+                    <input id="lifecycleConfig" type="checkbox" class="filled-in" />
+                    <span>Enable Lifecycle</span>
+                </label></p>
+            </div>
+
+            <div class="tab">
+                <h5>Logging Configuration</h5>
+                <p><input placeholder="Destination Bucket Name" oninput="this.className = ''"></p>
+                <p><input placeholder="Logfile Prefix" oninput="this.className = ''"></p>
+            </div>
+            
+            <div class="tab">
+                <h5>Metrics Configurations</h5>
+                <p><input placeholder="Metric Confiugration Id" oninput="this.className = ''"></p>
+                <p><input placeholder="Prefix" oninput="this.className = ''"></p>
+                <h6>Tag Filters</h6>
+                <p><input placeholder="key=value, (Not Required)" oninput="this.className = ''"></p>
+                <p><label>
+                    <input id="metricsConfig" type="checkbox" class="filled-in" />
+                    <span>Enable Metrics</span>
+                </label></p>
+            </div>
+
+            <div class="tab">
+                <h5>Notification Configuration</h5>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Choose Notification</option>
+                        <option value="Lamba">Lambda</option>
+                        <option value="Queue">Queue</option>
+                        <option value="Topic">Topic</option>
+                    </select>
+                </div>
+                <h6>Event</h6>
+                <p><input placeholder="Event to invoke metric " oninput="this.className = ''"></p>
+                <h6>Filter</h6>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Filter Name</option>
+                        <option value="Prefix">Prefix</option>
+                        <option value="Suffix">Suffix</option>
+                    </select>
+                </div>
+                <p><input placeholder="Filter Value " oninput="this.className = ''"></p>
                 <p>
                     <label>
-                        <input id="lifecycleConfig" type="checkbox" class="filled-in" />
-                        <span>Enable Lifecycle</span>
+                        <input id="notificationConfig" type="checkbox" class="filled-in" />
+                        <span>Enable Notifications</span>
                     </label>
                 </p>
             </div>
@@ -242,6 +286,9 @@
             
             <!-- Circles which indicates the steps of the form: -->
             <div style="text-align:center;margin-top:40px;">
+              <span class="step"></span>
+              <span class="step"></span>
+              <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>
