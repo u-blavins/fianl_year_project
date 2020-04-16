@@ -26,12 +26,12 @@
             <h1>Simple Storage Service</h1>
             
             <div class="tab">
-                <h5>Bucket name:</h5>
+                <h5>Bucket name</h5>
                 <p><input placeholder="Bucket name" oninput="this.className = ''"></p>
             </div>
 
             <div class="tab">
-                <h5>Accelerate Configuration:</h5>
+                <h5>Accelerate Configuration</h5>
                 <div class="input-field col s12">
                     <select id='accelerateConfig'>
                       <option value="">Choose Access Control Status</option>
@@ -42,7 +42,7 @@
             </div>
             
             <div class="tab">
-                <h5>Access Control:</h5>
+                <h5>Access Control</h5>
                 <div class="input-field col s12">
                     <select id='accessControl'>
                       <option value="">Choose Access Control</option>
@@ -59,7 +59,7 @@
             </div>
             
             <div class="tab">
-                <h5>Analytics Configuration:</h5>
+                <h5>Analytics Configuration</h5>
                 <p><input placeholder="Id (Required)" oninput="this.className = ''"></p>
                 <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
                 <h6>Destination</h6>
@@ -70,10 +70,106 @@
                 <p><input placeholder="key=value, (Not Required)" oninput="this.className = ''"></p>
                 <p>
                     <label>
-                      <input id="analyticConfig" type="checkbox" class="filled-in" />
-                      <span>Enable Analytics</span>
+                        <input id="analyticConfig" type="checkbox" class="filled-in" />
+                        <span>Enable Analytics</span>
                     </label>
-                  </p>
+                </p>
+            </div>
+
+            <div class="tab">
+                <h5>Bucket Encryption</h5>
+                <div class="switch">
+                    <label>
+                        AES256
+                        <input id="defaultEncryption" type="checkbox">
+                        <span class="lever"></span>
+                        KMS
+                    </label>
+                </div>
+                <h5>KMS Key:</h5>
+                <p><input placeholder="KMS Key (Required if KMS selected)" oninput="this.className = ''"></p>
+            </div>
+
+            <div class="tab">
+                <h5>CORS Configuration</h5>
+                <p><input id="corsId" placeholder="CORS Id (Not Required)" oninput="this.className = ''"></p>
+                <p><input type="number" placeholder="Max Age (Not Required)" oninput="this.className = ''"></p>
+                <h6>Allowed Headers</h6>
+                <p><input id="corsAllHead" placeholder="header, ... (Not Required)" oninput="this.className = ''"></p>
+                <h6>Allowed Origins</h6>
+                <p><input placeholder="origin, ... (Required)" oninput="this.className = ''"></p>
+                <h6>Exposed Headers</h6>
+                <p><input placeholder="header, ... (Not Required)" oninput="this.className = ''"></p>
+                <h6>Allowed Methods</h6>
+                <div class="input-field col s12">
+                    <select id="allowedMethods" multiple>
+                        <option value="GET">GET</option>
+                        <option value="PUT">PUT</option>
+                        <option value="HEAD">HEAD</option>
+                        <option value="POST">POST</option>
+                        <option value="DELETE">DELETE</option>
+                    </select>
+                </div>
+                <p>
+                    <label>
+                        <input id="corsConfig" type="checkbox" class="filled-in" />
+                        <span>Enable CORS</span>
+                    </label>
+                </p>
+            </div>
+
+            <div class="tab">
+                <h5>Inventory Configuration</h5>
+                <p><input placeholder="Inventory Id (Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
+                <h6>Destination</h6>
+                <p><input placeholder="Bucket Account ID (Not Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Bucket Arn (Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Choose Inventory Status</option>
+                        <option value="Enabled">Enabled</option>
+                        <option value="Suspended">Suspended</option>
+                    </select>
+                </div>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Choose Object Versions</option>
+                        <option value="All">All</option>
+                        <option value="Current">Current</option>
+                    </select>
+                </div>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Choose Scheduled Frequency</option>
+                        <option value="Daily">Daily</option>
+                        <option value="Weekly">Weekly</option>
+                    </select>
+                </div>
+                <br>
+                <div class="input-field col s12">
+                    <select id="optionalFields" multiple>
+                        <option value="EncryptionStatus">EncryptionStatus</option>
+                        <option value="Etag">Etag</option>
+                        <option value="IntelligentTieringAccessTier">IntelligentTieringAccessTier</option>
+                        <option value="IsMultipartUploaded">IsMultipartUploaded</option>
+                        <option value="LastModifiedDate">LastModifiedDate</option>
+                        <option value="ObjectLockLegalHoldStatus">ObjectLockLegalHoldStatus</option>
+                        <option value="ObjectLockMode">ObjectLockMode</option>
+                        <option value="ObjectLockRetainUntilDate">ObjectLockRetainUntilDate</option>
+                        <option value="ReplicationStatus">ReplicationStatus</option>
+                        <option value="Size">Size</option>
+                        <option value="StorageClass">StorageClass</option>
+                    </select>
+                    <label>Select Optional Fields</label>
+                </div>
+                <p>
+                    <label>
+                        <input id="inventoryConfig" type="checkbox" class="filled-in" />
+                        <span>Enable Inventory</span>
+                    </label>
+                </p>
             </div>
             
             <div class="tab">Login Info:
@@ -83,13 +179,16 @@
             
             <div style="overflow:auto;">
                 <div style="float:right;">
-                    <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
-                    <button type="button" id="nextBtn" onclick="nextPrev(1)">Next</button>
+                    <a id="prevBtn" onclick="nextPrev(-1)" class="waves-effect waves-teal btn-flat">Previous</a>
+                    <a id="nextBtn" onclick="nextPrev(1)" class="waves-effect waves-light btn">Next</a>
                 </div>
             </div>
             
             <!-- Circles which indicates the steps of the form: -->
             <div style="text-align:center;margin-top:40px;">
+              <span class="step"></span>
+              <span class="step"></span>
+              <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>

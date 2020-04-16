@@ -6,7 +6,9 @@ var configurations = {
     1: 'AccelerateConfiguration',
     2: 'AccessControl',
     3: 'AnalyticsConfiguration',
-    4: 'Test'
+    4: 'BucketEncryption',
+    5: 'CorsConfiguration',
+    6: 'InventoryConfigurations'
 }
 
 var payload = {}
@@ -19,7 +21,7 @@ function showTab(n) {
   if (n == 0) {
     document.getElementById("prevBtn").style.display = "none";
   } else {
-    document.getElementById("prevBtn").style.display = "inline";
+    document.getElementById("prevBtn").style.display = "inline-block";
   }
   if (n == (x.length - 1)) {
     document.getElementById("nextBtn").innerHTML = "Submit";
@@ -61,6 +63,12 @@ function validateForm() {
         valid = validateAccessControl(config);
     } else if (config == "AnalyticsConfiguration") {
         valid = validateAnalyticsConfiguration(x, config);
+    } else if (config == "BucketEncryption") {
+        valid = validateBucketEncryption(x,config);
+    } else if (config == "CorsConfiguration") {
+        valid = validateCorsConfiguration(x, config);
+    } else if (config == "InventoryConfigurations") {
+        valid = validateInventoryConfigurations(x, config);
     }
 
     if (valid) {
@@ -142,6 +150,87 @@ function validateAnalyticsConfiguration(x, config) {
         }
     }
     return valid;
+}
+
+function validateBucketEncryption(x, config) {
+    valid = true;
+    encryption = document.getElementById("defaultEncryption").checked;
+    if (encryption) {
+        y = x[currentTab].getElementsByTagName("input");
+        if (y[1].value == "") {
+            y[1].className += " invalid";
+            valid = false;
+        } else {
+            payload["BucketEncryption"] = {
+                SSEAlgorithm: "aws:kms",
+                KMSMasterKeyID: y[1].value
+            }
+        }
+    } else {
+        payload["BucketEncryption"] = { SSEAlgorithm: "AES256" }
+    }
+    console.log(payload);
+    return valid;
+}
+
+function validateCorsConfiguration(x, config) {
+    valid = true;
+    cors = {}
+    enabled = document.getElementById("corsConfig").checked;
+    methods = document.getElementById("allowedMethods").value;
+    y = x[currentTab].getElementsByTagName("input");
+    if (enabled) {
+        if (y[0].value != "") { cors['Id'] = y[0].value;}
+        if (y[1].value != "") {  cors['MaxAge'] = y[1].value; }
+        if (y[2].value != "") { 
+            var headers = returnList(y[2].value);
+            if (headers.length != 0) { cors['AllowedHeaders'] = headers; }}
+        if (y[3].value != "") { 
+            var headers = returnList(y[3].value); 
+            if (headers.length != 0) {cors['AllowedOrigins'] = headers;}
+        } else {
+            y[3].className += " invalid";
+            valid = false;
+        }
+        if (y[4].value != "") { 
+            var headers = returnList(y[4].value);
+            if (headers.length != 0) { cors['ExposedHeaders'] = headers; }}
+        if(y[5].value == "") {
+            y[5].className += " invalid";
+            valid=false; 
+        }
+        else {
+            var headers = returnList(y[5].value);
+            if (headers.length != 0) { cors['AllowedMethods'] = headers; }
+        }
+        if ("AllowedMethods" in cors && "AllowedOrigins" in cors) {
+            payload["CorsConfiguration"] = [cors];
+        } else {
+            if ("CorsConfiguration" in payload) {
+                delete payload["CorsConfiguration"];
+            }
+        }
+    } else {
+        if ("CorsConfiguration" in payload) {
+            delete payload["CorsConfiguration"];
+        }
+    }
+    console.log(payload);
+    return valid;
+}
+
+function validateInventoryConfigurations(x, config) {
+    valid = true;
+    return valid;
+}
+
+function returnList(listString) {
+    var temp = []
+    strings = listString.split(",");
+    for (var i = 0; i < strings.length; i++) {
+        temp.push(strings[i].replace(/\s+/g, ''));
+    }
+    return temp;
 }
 
 function returnTags(tagStrings) {

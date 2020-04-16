@@ -29,7 +29,8 @@
 #regForm {
     background-color: #ffffff;
     margin: 100px auto;
-    padding: 40px;
+    padding: 20px;
+    padding-top: 0;
     height: 60%;
     width: 80%;
     min-width: 300px;
