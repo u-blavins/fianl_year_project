@@ -498,7 +498,42 @@ function validateVersioningConfiguration(config) {
 
 function validateWebsiteConfiguration(x, config) {
     valid = true;
-    
+    var website = {}
+    var redirect_request = {}
+    var redirect_rules = {}
+    var redirect_condition = {}
+    var routing_rules = {}
+    enable = document.getElementById("websiteConfig").checked;
+    y = x[currentTab].getElementsByTagName("input");
+    if (enable) {
+        if (y[0].value != "") { website["IndexDocument"] = y[0].value; }
+        if (y[1].value != "") { website["ErrorDocument"] = y[1]. value; }
+        if (y[2].value != "") { redirect_request["Hostname"] = y[2].value; }
+        if (y[3].value != "Choose Protocol") { redirect["Protocol"] = y[2].value; }
+        if (y[4].value != "") { redirect_rules["HostName"] = y[4].value; }
+        if (y[5].value != "") { redirect_rules["HttpRedirectCode"] = y[5].value; }
+        if (y[6].value != "Choose Protocol") { redirect_rules["Protocol"] = y[6].value; }
+        if (y[7].value != "") { redirect_rules["ReplaceKeyPrefixWith"] = y[7].value; }
+        if (y[8].value != "") { redirect_rules["ReplaceKeyWith"] = y[8].value; }
+        if (y[9].value != "") { redirect_condition["HttpErrorCodeReturnsEquals"] = y[9].value; }
+        if (y[10].value != "") { redirect_condition["KeyPrefixEquals"] = y[10].value; }
+        if ("Hostname" in redirect_request) {
+            payload[config] = { "RedirectAllRequestsTo": redirect_request }
+        } else
+        {
+            if (Object.keys(redirect_rules).length > 0) {
+                routing_rules["RedirectRules"] = redirect_rules;
+            }
+            if (Object.keys(redirect_condition).length > 0) {
+                routing_rules["RoutingRuleCondition"] = redirect_condition;
+            }
+            if ("RedirectRules" in routing_rules) {
+                website["RoutingRules"] = [routing_rules];
+            }
+            payload[config] = website;
+        }
+    } else { if (config in payload) {delete payload[config]; }}
+    console.log(payload);
     return valid;
 }
 

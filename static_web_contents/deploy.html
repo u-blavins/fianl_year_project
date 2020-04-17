@@ -374,17 +374,34 @@
                 <h5>Website Configuration</h5>
                 <p><input placeholder="Index Document (Not Required)" oninput="this.className = ''"></p>
                 <p><input placeholder="Error Document (Not Required)" oninput="this.className = ''"></p>
-                <h6>Redirect Requests To</h6>
+                <h6>Redirect Requests To (Not Required)</h6>
                 <p><input placeholder="Name of host to redirect to (Required for redirecting)" oninput="this.className = ''"></p>
                 <div class="input-field col s12">
                     <select>
                         <option value="">Choose Protocol</option>
-                        <option value="Enabled">Enabled</option>
-                        <option value="Disabled">Disabled</option>
+                        <option value="http">http</option>
+                        <option value="https">https</option>
                     </select>
                 </div>
+                <br>
+                <h5>Routing Rules (Not Required)</h5>
+                <h6>Redirect Rules (Required)</h6>
+                <p><input placeholder="Name of host to redirect to (Not Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Http redirct code (Not Required)" oninput="this.className = ''"></p>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Choose Protocol</option>
+                        <option value="http">http</option>
+                        <option value="https">https</option>
+                    </select>
+                </div>
+                <p><input placeholder="Object key prefix to use in redirect request (Not Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Object key to use in redirect request (Not Required)" oninput="this.className = ''"></p>
+                <h6>Redirect Rule Condition (Optional)</h6>
+                <p><input placeholder="HTTP error code when redirect applied (Optional)" oninput="this.className = ''"></p>
+                <p><input placeholder="Object key name prefix when redirect applied (Optional)" oninput="this.className = ''"></p>
                 <p><label>
-                    <input id="versioningConfig" type="checkbox" checked="checked" class="filled-in" />
+                    <input id="websiteConfig" type="checkbox" class="filled-in" />
                     <span>Enable Static Website</span>
                 </label></p>
             </div>
@@ -403,6 +420,7 @@
             
             <!-- Circles which indicates the steps of the form: -->
             <div style="text-align:center;margin-top:40px;">
+              <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>
