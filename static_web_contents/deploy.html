@@ -271,6 +271,96 @@
                     </label>
                 </p>
             </div>
+
+            <div class="tab">
+                <h5>Object Lock Configuration</h5>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Choose Mode</option>
+                        <option value="COMPLIANCE">COMPLIANCE</option>
+                        <option value="GOVERNANCE">GOVERNANCE</option>
+                    </select>
+                </div>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Choose Day/Year</option>
+                        <option value="Day">Day</option>
+                        <option value="Years">Years</option>
+                    </select>
+                </div>
+                <p><input type="number" placeholder="Number of days/years of object lock" oninput="this.className = ''"></p>
+                <p><label>
+                    <input id="objectLockConfig" type="checkbox" class="filled-in" />
+                    <span>Enable Object Lock</span>
+                </label></p>
+            </div>
+
+            <div class="tab">
+                <h5>Public Access Block Configuration</h5>
+                <br>
+                <p><label>
+                    <input id="blockPublicAcls" type="checkbox" checked="checked" class="filled-in" />
+                    <span>Block Public Acls</span>
+                </label></p>
+                <p><label>
+                    <input id="blockPublicPolicy" type="checkbox" checked="checked" class="filled-in" />
+                    <span>Block Public Policy</span>
+                </label></p>
+                <p><label>
+                    <input id="ignorePublicAcls" type="checkbox" checked="checked" class="filled-in" />
+                    <span>Ignore Public Acls</span>
+                </label></p>
+                <p><label>
+                    <input id="restrictPublicBuckets" type="checkbox" checked="checked" class="filled-in" />
+                    <span>Restrict Public Buckets</span>
+                </label></p>
+            </div>
+
+            <div class="tab">
+                <h5>Replication Configuration</h5>
+                <p><input placeholder="Replication Role Arn (Required)" oninput="this.className = ''"></p>
+                <h6>Rules</h6>
+                <p><input placeholder="Replication Id (Not Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Prefix (Default ~)" oninput="this.className = ''"></p>
+                <p><label>
+                    <input id="sseKmsEnabled" type="checkbox" class="filled-in" />
+                    <span>Enable SSE KMS Encryption</span>
+                </label></p>
+                <h6>Destination</h6>
+                <p><input placeholder="Replica Owner (Not Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Account of Replica Owner" oninput="this.className = ''"></p>
+                <p><input placeholder="Bucket Arn (Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Replica KMS Key ID (Not Required)" oninput="this.className = ''"></p>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Storage Class</option>
+                        <option value="DEEP_ARCHIVE">DEEP_ARCHIVE</option>
+                        <option value="GLACIER">GLACIER</option>
+                        <option value="INTELLIGENT_TIERING">INTELLIGENT_TIERING</option>
+                        <option value="ONEZONE_IA">ONEZONE_IA</option>
+                        <option value="REDUCED_REDUNDANCY">REDUCED_REDUNDANCY</option>
+                        <option value="STANDARD">STANDARD</option>
+                        <option value="STANDARD_IA">STANDARD_IA</option>
+                    </select>
+                </div>
+                <br>
+                <p><label>
+                    <input id="replicationConfig" type="checkbox" class="filled-in" />
+                    <span>Enable Replication</span>
+                </label></p>
+            </div>
+
+            <div class="tab">
+                <h5>Tags</h5>
+                <br>
+                <h6>Bucket Owner</h6>
+                <p><input placeholder="Name or email of bucket owner (Required)" oninput="this.className = ''"></p>
+                <h6>Bucket Description</h6>
+                <p><input placeholder="Description of the bucket (Required)" oninput="this.className = ''"></p>
+                <h6>Additional Tags</h6>
+                <p><input placeholder="key=value, (Not Required)" oninput="this.className = ''"></p>
+            </div>
+            
             
             <div class="tab">Login Info:
                 <p><input placeholder="Username..." oninput="this.className = ''"></p>
@@ -286,6 +376,10 @@
             
             <!-- Circles which indicates the steps of the form: -->
             <div style="text-align:center;margin-top:40px;">
+              <span class="step"></span>
+              <span class="step"></span>
+              <span class="step"></span>
+              <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>

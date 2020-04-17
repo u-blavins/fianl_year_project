@@ -1,4 +1,4 @@
-var currentTab = 0; // Current tab is set to be the first tab (0)
+var currentTab = 14; // Current tab is set to be the first tab (0)
 showTab(currentTab); // Display the current tab
 
 var configurations = {
@@ -12,7 +12,11 @@ var configurations = {
     7: 'LifecycleConfiguration',
     8: 'LoggingConfiguration',
     9: 'MetricsConfigurations',
-    10: 'NotificationConfiguration'
+    10: 'NotificationConfiguration',
+    11: 'ObjectLockConfiguration',
+    12: 'PublicAccessBlockConfiguration',
+    13: 'ReplicationConfiguration',
+    14: 'Tags'
 }
 
 var payload = {}
@@ -81,6 +85,14 @@ function validateForm() {
         valid = validateMetricsConfiguration(x, config);
     } else if (config == "NotificationConfiguration") {
         valid = validateNotificationConfiguration(x, config);
+    } else if (config == "ObjectLockConfiguration") {
+        valid = validateObjectLockConfiguration(x, config);
+    } else if (config == "PublicAccessBlockConfiguration") {
+        valid = validatePublicAccessBlockConfiguration(x, config);
+    } else if (config == "ReplicationConfiguration") {
+        valid = validateReplicationConfiguration(x, config);
+    } else if (config == "Tags") {
+        valid = validateTags(x, config);
     }
 
     if (valid) {
@@ -363,9 +375,108 @@ function validateNotificationConfiguration(x, config) {
         if (y[2].value != "Filter Name" && y[3].value != "") {
             notif_config = { Name: y[2].value, Value: y[3].value }}
         if (notif != "" && "Event" in notif_config) {
-            payload[config] = { notif: [notif_config] };
+            switch (notif) {
+                case "LambdaConfigurations":
+                    payload[config] = { "LambdaConfigurations" : [notif_config] };
+                    break;
+                case "QueueConfigurations":
+                    payload[config] = { "QueueConfigurations" : [notif_config] };
+                    break;
+                case "TopicConfigurations":
+                    payload[config] = { "TopicConfigurations" : [notif_config] };
+                    break;
+            }
         }
     } else { if (config in payload) { delete payload[config]; }}
+    console.log(payload);
+    return valid;
+}
+
+function validateObjectLockConfiguration(x, config) {
+    valid = true;
+    time = "";
+    object_lock = {}
+    y = x[currentTab].getElementsByTagName("input");
+    enable = document.getElementById("objectLockConfig").checked;
+    if (enable) {
+        object_lock["ObjectLockEnabled"] = "Enabled";
+        if (y[0].value != "Choose Mode") { object_lock["Mode"] = y[0].value;}
+        if (y[1].value != "Choose Day/Year") { time = y[1].value;}
+        if (time != "" && y[2].value != "") {object_lock[time] = parseInt(y[2].value);}
+        payload["ObjectLockConfiguration"] = object_lock;
+    } else { if (config in payload) {delete payload[config];}}
+    console.log(payload);
+    return valid;
+}
+
+function validatePublicAccessBlockConfiguration(x, config) {
+    valid = true;
+    blockPublicAcls = document.getElementById('blockPublicAcls').checked;
+    blockPublicPolicy = document.getElementById('blockPublicPolicy').checked;
+    ignorePublicAcls = document.getElementById('ignorePublicAcls').checked;
+    restrictPublicBuckets = document.getElementById('restrictPublicBuckets').checked;
+    payload["PublicAccessBlock"] = {
+        BlockPublicAcls: blockPublicAcls,
+        BlockPublicPolicy: blockPublicPolicy,
+        IgnorePublicAcls: ignorePublicAcls,
+        RestrictPublicBuckets: restrictPublicBuckets
+    }
+    console.log(payload);
+    return valid;
+}
+
+function validateReplicationConfiguration(x, config) {
+    valid = true;
+    replication = {}
+    rule = {}
+    destination = {}
+    enable = document.getElementById("replicationConfig").checked;
+    kmsEnable = document.getElementById("sseKmsEnabled").checked;
+    y = x[currentTab].getElementsByTagName("input");
+    if (enable) {
+        if (y[0].value != "") { replication["Role"] = y[0].value; }
+        else { y[0].className += " invalid"; valid = false; }
+        if (y[1].value != "") { rule["Id"] = y[1].value; }
+        if (y[2].value == "") { rule["Prefix"] = "~"; }
+        else { rule["Prefix"] = "~"; }
+        if (kmsEnable) { rule["SseKmsEncryptionEnabled"] = "Enabled"; }
+        else { rule["SseKmsEncryptionEnabled"] = "Disabled"; }
+        if (y[4].value != "") { destination["Owner"] = y[4].value; }
+        if ("Owner" in destination) {
+            if (y[5].value != "") { destination["Account"] = y[5].value; }
+            else { y[5].className += " invalid"; valid = false; }
+        }
+        if (y[6].value != "") { destination["Bucket"] = y[6].value; }
+        else { y[6].className += " invalid"; valid = false; }
+        if (y[7].value != "") { destination["ReplicaKmsKeyID"] = y[7].value; }
+        if (y[8].value != "Storage Class") { destination["StorageClass"] = y[8].value; }
+        if ("Bucket" in destination) { rule["Destination"] = destination; }
+        if ("Destination" in rule && "Role" in replication) {
+            replication["Rules"] = [rule];
+            payload["ReplicationConfiguration"] = replication;
+        } 
+    } else { if (config in payload) {delete payload[config];}}
+    console.log(payload);
+    return valid;
+}
+
+function validateTags(x, config) {
+    valid = true;
+    var tags = {}
+    var add_tags = {}
+    y = x[currentTab].getElementsByTagName("input");
+    if (y[0].value != "") {tags["Owner"] = y[0].value; }
+    else {y[0].className += " invalid"; valid = false;} 
+    if (y[1].value != "") {tags["Info"] = y[1].value; }
+    else {y[1].className += " invalid"; valid = false; }
+    if (y[2].value != "") { add_tags = returnTags(y[2].value); }
+    if ("Owner" in tags && "Info" in tags) {
+        add_key = Object.keys(add_tags);
+        if (add_key.length > 0) { 
+            for (var i = 0; i < add_key.length; i++) { 
+                tags[add_key[i]] = add_tags[add_key[i]];}}
+        payload[config] = tags;
+    }
     console.log(payload);
     return valid;
 }

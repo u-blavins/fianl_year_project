@@ -198,7 +198,7 @@ Resources:
       # Required
       Tags:
         # Required
-        - Key: Value
+        Key: Value
       # Not Required
       VersioningConfiguration: Enabled | Suspended
       # Not Required
