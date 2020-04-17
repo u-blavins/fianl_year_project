@@ -18,7 +18,8 @@ var configurations = {
     13: 'ReplicationConfiguration',
     14: 'Tags',
     15: 'VersioningConfiguration',
-    16: 'WebsiteConfiguration'
+    16: 'WebsiteConfiguration',
+    17: 'payload'
 }
 
 var payload = {}
@@ -99,12 +100,15 @@ function validateForm() {
         valid = validateVersioningConfiguration(config);
     } else if (config == "WebsiteConfiguration") {
         valid = validateWebsiteConfiguration(x, config);
+        document.getElementById('payloadText').value = JSON.stringify(payload, undefined, 3);
+        // $('#payloadText').val(JSON.stringify(payload, undefined, 3));
+        M.textareaAutoResize($('#payloadText'));
     }
 
     if (valid) {
         document.getElementsByClassName("step")[currentTab].className += " finish";
     }
-    return valid; // return the valid status
+    return valid;
 }
 
 function validateBucketName(x, config) {
