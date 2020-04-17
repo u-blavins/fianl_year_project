@@ -1,4 +1,4 @@
-var currentTab = 14; // Current tab is set to be the first tab (0)
+var currentTab = 16; // Current tab is set to be the first tab (0)
 showTab(currentTab); // Display the current tab
 
 var configurations = {
@@ -16,7 +16,9 @@ var configurations = {
     11: 'ObjectLockConfiguration',
     12: 'PublicAccessBlockConfiguration',
     13: 'ReplicationConfiguration',
-    14: 'Tags'
+    14: 'Tags',
+    15: 'VersioningConfiguration',
+    16: 'WebsiteConfiguration'
 }
 
 var payload = {}
@@ -93,6 +95,10 @@ function validateForm() {
         valid = validateReplicationConfiguration(x, config);
     } else if (config == "Tags") {
         valid = validateTags(x, config);
+    } else if (config == "VersioningConfiguration") {
+        valid = validateVersioningConfiguration(config);
+    } else if (config == "WebsiteConfiguration") {
+        valid = validateWebsiteConfiguration(x, config);
     }
 
     if (valid) {
@@ -478,6 +484,21 @@ function validateTags(x, config) {
         payload[config] = tags;
     }
     console.log(payload);
+    return valid;
+}
+
+function validateVersioningConfiguration(config) {
+    valid = true;
+    enable = document.getElementById("versioningConfig").checked;
+    if (enable) { payload[config] = "Enabled"; }
+    else { payload[config] = "Suspended"; }
+    console.log(payload);
+    return valid;
+}
+
+function validateWebsiteConfiguration(x, config) {
+    valid = true;
+    
     return valid;
 }
 

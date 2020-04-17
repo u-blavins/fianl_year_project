@@ -360,7 +360,34 @@
                 <h6>Additional Tags</h6>
                 <p><input placeholder="key=value, (Not Required)" oninput="this.className = ''"></p>
             </div>
-            
+
+            <div class="tab">
+                <h5>Versioning Configuration</h5>
+                <br>
+                <p><label>
+                    <input id="versioningConfig" type="checkbox" checked="checked" class="filled-in" />
+                    <span>Enable Versioning</span>
+                </label></p>
+            </div>
+
+            <div class="tab">
+                <h5>Website Configuration</h5>
+                <p><input placeholder="Index Document (Not Required)" oninput="this.className = ''"></p>
+                <p><input placeholder="Error Document (Not Required)" oninput="this.className = ''"></p>
+                <h6>Redirect Requests To</h6>
+                <p><input placeholder="Name of host to redirect to (Required for redirecting)" oninput="this.className = ''"></p>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Choose Protocol</option>
+                        <option value="Enabled">Enabled</option>
+                        <option value="Disabled">Disabled</option>
+                    </select>
+                </div>
+                <p><label>
+                    <input id="versioningConfig" type="checkbox" checked="checked" class="filled-in" />
+                    <span>Enable Static Website</span>
+                </label></p>
+            </div>
             
             <div class="tab">Login Info:
                 <p><input placeholder="Username..." oninput="this.className = ''"></p>
@@ -376,6 +403,7 @@
             
             <!-- Circles which indicates the steps of the form: -->
             <div style="text-align:center;margin-top:40px;">
+              <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>
               <span class="step"></span>
