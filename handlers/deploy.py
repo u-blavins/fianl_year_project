@@ -99,7 +99,7 @@ def deploy_template_handler(event, context):
 
     return response
 
-def create_cloudformation(stack, template, env):
+def create_cloudformation(stack, template, region):
     """ Function that will create resources through a 
     CloudFormation Template
 
