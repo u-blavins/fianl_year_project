@@ -28,6 +28,13 @@
             <div class="tab">
                 <h5>Bucket name</h5>
                 <p><input placeholder="Bucket name" oninput="this.className = ''"></p>
+                <div class="input-field col s12">
+                    <select>
+                        <option value="">Choose Region</option>
+                        <option value="eu-west-1">eu-west-1 (Ireland)</option>
+                        <option value="eu-west-2">eu-west-2 (London)</option>
+                    </select>
+                </div>
             </div>
 
             <div class="tab">
@@ -412,11 +419,21 @@
                     <textarea id="payloadText" class="materialize-textarea"></textarea>
                 </div>
             </div>
+
+            <div class="tab">
+                <h5>CloudFormation Template</h5>
+                <div class="input-field col s12">
+                    <textarea id="cfTemplate" class="materialize-textarea"></textarea>
+                </div>
+            </div>
             
             <div style="overflow:auto;">
                 <div style="float:right;">
                     <a id="prevBtn" onclick="nextPrev(-1)" class="waves-effect waves-teal btn-flat">Previous</a>
                     <a id="nextBtn" onclick="nextPrev(1)" class="waves-effect waves-light btn">Next</a>
+                    <a id="validateBtn" onclick="validate(1)" class="waves-effect waves-light btn" style="display: none;">Validate</a>
+                    <a id="deployBtn" onclick="deploy(1)" class="waves-effect waves-light btn" style="display: none;">Deploy</a>
+                    <a id="downloadBtn" onclick="downloadJson()" class="waves-effect waves-light btn" style="display: none;">Download</a>
                 </div>
             </div>
             

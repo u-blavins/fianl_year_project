@@ -1,4 +1,4 @@
-var currentTab = 16; // Current tab is set to be the first tab (0)
+var currentTab = 0; // Current tab is set to be the first tab (0)
 showTab(currentTab); // Display the current tab
 
 var configurations = {
@@ -18,28 +18,100 @@ var configurations = {
     13: 'ReplicationConfiguration',
     14: 'Tags',
     15: 'VersioningConfiguration',
-    16: 'WebsiteConfiguration',
-    17: 'payload'
+    16: 'WebsiteConfiguration'
 }
 
 var payload = {}
+var env = {}
 
 function showTab(n) {
-  // This function will display the specified tab of the form ...
-  var x = document.getElementsByClassName("tab");
-  x[n].style.display = "block";
+    var x = document.getElementsByClassName("tab");
+    x[n].style.display = "block";
+    if (n == 0) {
+        document.getElementById("prevBtn").style.display = "none";
+    } else {
+        document.getElementById("prevBtn").style.display = "inline-block";
+    }
+    if (n == (x.length - 1)) {
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("validateBtn").style.display = "none";
+        document.getElementById("deployBtn").style.display = "none";
+        document.getElementById("downloadBtn").style.display = "inline-block";
+    }
+    else if (n == (x.length - 2)) {
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("downloadBtn").style.display = "none";
+        document.getElementById("validateBtn").style.display = "inline-block";
+        document.getElementById("deployBtn").style.display = "inline-block";
+    }  else {
+        document.getElementById("nextBtn").innerHTML = "Next";
+        document.getElementById("nextBtn").style.display = "inline-block";
+        document.getElementById("validateBtn").style.display = "none";
+        document.getElementById("deployBtn").style.display = "none";
+        document.getElementById("downloadBtn").style.display = "none";
+    }
+    fixStepIndicator(n)
+}
 
-  if (n == 0) {
-    document.getElementById("prevBtn").style.display = "none";
-  } else {
-    document.getElementById("prevBtn").style.display = "inline-block";
-  }
-  if (n == (x.length - 1)) {
-    document.getElementById("nextBtn").innerHTML = "Submit";
-  } else {
-    document.getElementById("nextBtn").innerHTML = "Next";
-  }
-  fixStepIndicator(n)
+function validate(n) {
+    var x = document.getElementsByClassName("tab");
+    if (Object.keys(payload).length != 0) {
+        var body = {governance: 'ENABLED', option: 'VALIDATION',
+            payload: payload, env: env}
+
+        fetch('https://qc6lo72n44.execute-api.eu-west-2.amazonaws.com/beta/provisioner', {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.executionArn !== '') {
+                getExectutionStatus(
+                    'https://qc6lo72n44.execute-api.eu-west-2.amazonaws.com/beta/execution',
+                    JSON.stringify(d))
+            }
+        })
+        .catch(err => { console.log(err) });
+        nextPrev(n)
+    } else {
+        M.toast({html: 'Bucket payload is empty'});
+        return false;
+    }
+}
+
+function deploy(n) {
+    var x = document.getElementsByClassName("tab");
+    if (Object.keys(payload).length != 0) {
+        var body = {governance: 'ENABLED', option: 'DEPLOY',
+            payload: payload, env: env}
+
+        fetch('https://qc6lo72n44.execute-api.eu-west-2.amazonaws.com/beta/provisioner', {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.executionArn !== '') {
+                getExectutionStatus(
+                    'https://qc6lo72n44.execute-api.eu-west-2.amazonaws.com/beta/execution',
+                    JSON.stringify(d))
+            }
+        })
+        .catch(err => { console.log(err) });
+        nextPrev(n)
+    } else {
+        M.toast({html: 'Bucket payload is empty'});
+        return false;
+    }
+    showTab(currentTab);
 }
 
 function nextPrev(n) {
@@ -54,6 +126,7 @@ function nextPrev(n) {
   // if you have reached the end of the form... :
   if (currentTab >= x.length) {
     //...the form gets submitted:
+    // validation or deployment 
     document.getElementById("regForm").submit();
     return false;
   }
@@ -101,10 +174,8 @@ function validateForm() {
     } else if (config == "WebsiteConfiguration") {
         valid = validateWebsiteConfiguration(x, config);
         document.getElementById('payloadText').value = JSON.stringify(payload, undefined, 3);
-        // $('#payloadText').val(JSON.stringify(payload, undefined, 3));
         M.textareaAutoResize($('#payloadText'));
     }
-
     if (valid) {
         document.getElementsByClassName("step")[currentTab].className += " finish";
     }
@@ -115,12 +186,22 @@ function validateBucketName(x, config) {
     valid = true;
     y = x[currentTab].getElementsByTagName("input");
     if (y[0].value == "" || y[0].value != y[0].value.toLowerCase()) {
+        if (y[0].value != y[0].value.toLowerCase()) {
+            M.toast({html: 'Bucket name must be lowercase'});
+        }
         y[0].className += " invalid";
         valid = false;
     } else {
         payload[config] = y[0].value;
         console.log(payload);
     }
+    if (y[1].value != "Choose Region") { 
+        y[1].className = "input-field col s12"; 
+        if (y[1].value == "eu-west-1 (Ireland)") { env["region"] = "eu-west-1"; }
+        if (y[1].value == "eu-west-2 (London)") { env["region"] = "eu-west-2"; }
+        console.log(env);
+    }
+    else { y[1].className += " invalid"; valid = false;}
     return valid;
 }
 
@@ -328,7 +409,7 @@ function validateLifecycleConfiguration(x, config) {
             "NoncurrentVersionExpirationInDays" in lifecycle || "NoncurrentVersionTransitions" in lifecycle || "Transitions" in lifecycle ) {
                 payload["LifecycleConfiguration"] = [lifecycle];
             } else {
-                M.toast({html: 'Choose a lifecycle configuration'})
+                M.toast({html: 'Choose a lifecycle configuration'});
                 valid = false;
             }
         }
@@ -566,4 +647,38 @@ function fixStepIndicator(n) {
         x[i].className = x[i].className.replace(" active", "");
     }
     x[n].className += " active";
+}
+
+function getExectutionStatus(url, arn) {
+    fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {'Content-Type': 'application/json'},
+        body: arn
+    })
+    .then(resp => resp.json())
+    .then(d => { 
+        if (d.status == 'RUNNING') {
+            getExectutionStatus(url, arn);
+        } else {
+            var data = JSON.parse(d.output);
+            document.getElementById('cfTemplate').value = JSON.stringify(data['Template'], undefined, 3);
+            M.textareaAutoResize($('#cfTemplate'));
+        }
+     })
+    .catch(err => { console.log(err) })
+}
+
+function downloadJson() {
+    var data = JSON.parse(document.getElementById('cfTemplate').value);
+    var bucketName = data["Resources"]["Bucket"]["Properties"]["BucketName"];
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, undefined, 3));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", bucketName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
 }

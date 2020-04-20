@@ -47,12 +47,13 @@ def deploy_governed_template_handler(event, context):
             s3_cf.get_bucketname()['Message'])
         create_cloudformation(
             stack=stackname,
-            template=template)
+            template=template, 
+            region=env['region'])
 
     response = {}
     response['Test'] = 'Deploy Governance Lambda Handler'
     response['Template'] = template
-    response['Env'] = 'Environment Variables'
+    response['Env'] = env
 
     return response
 
@@ -69,6 +70,7 @@ def deploy_template_handler(event, context):
     """
 
     payload = event['Payload']
+    env = event['Env']
     cf_builder = CF_BUILDER()
     s3_cf = S3_CF(payload=payload)
     template = s3_cf.set_template()
@@ -87,16 +89,17 @@ def deploy_template_handler(event, context):
             s3_cf.get_bucketname()['Message'])
         create_cloudformation(
             stack=stackname,
-            template=template)
+            template=template, 
+            region=env['region'])
 
     response = {}
     response['Test'] = 'Deploy Lambda Handler'
     response['Template'] = template
-    response['Env'] = 'Environment Variables'
+    response['Env'] = env
 
     return response
 
-def create_cloudformation(stack, template):
+def create_cloudformation(stack, template, env):
     """ Function that will create resources through a 
     CloudFormation Template
 
@@ -109,7 +112,7 @@ def create_cloudformation(stack, template):
         response (dict): based on boto3 request
     """
     if stack != '' and template != {}:
-        client = boto3.client('cloudformation')
+        client = boto3.client('cloudformation', region_name=region)
         response = client.create_stack(
             StackName=stack,
             TemplateBody=json.dumps(template)

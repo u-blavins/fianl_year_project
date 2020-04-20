@@ -33,7 +33,6 @@ class SES:
             Destination={'ToAddresses':self.recipients},
             Message=message
         )
-        
 
     def set_source(self, source):
         """ Setter for source email address """

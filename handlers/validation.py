@@ -59,6 +59,7 @@ def validate_payload_handler(event, context):
     """
 
     payload = event['Payload']
+    env = event['Env']
     cf_builder = CF_BUILDER()
     s3_cf = S3_CF(payload=payload)
     s3_cf.set_template()
@@ -71,7 +72,6 @@ def validate_payload_handler(event, context):
         resource=resource
     )
     template = cf_builder.get_template()
-    env = event['Env']
 
     response = {}
     response['Test'] = 'Validation Lambda Handler'

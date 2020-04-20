@@ -20,7 +20,7 @@ def audit_handler(event, context):
     env = event['Env']
     template = event['Template']
     upload = backup_cft(env=env, template=template)
-    email = email_account_owner(template=template)
+    email = email_account_owner(env=env, template=template)
 
     response = {}
     response['Test'] = 'Audit Lambda Handler'
@@ -45,8 +45,9 @@ def backup_cft(env, template):
     backup_bucket = S3()
     try:
         resp = backup_bucket.backup_cloudformation_temlates(
-        template=template)
+        template=template,region=env['region'])
 
+        # need to investigate issue here
         status = resp['ResponseMetaData']['HTTPStatusCode']
 
         if status == 200:
@@ -59,12 +60,11 @@ def backup_cft(env, template):
 
     return response
 
-def email_account_owner(template):
+def email_account_owner(env, template):
     """ Function that sends a notification to account owner 
     notifying that infrastructure has been deployed
 
     Args:
-        env (dict): environment variables
         template (dict): CloudFormation template
     
     Returns:
@@ -73,7 +73,7 @@ def email_account_owner(template):
     ses = SES()
 
     try: 
-        resp = ses.upload_cft_deploy_email(template=template)
+        resp = ses.upload_cft_deploy_email(template=template, region=env['region'])
 
         status = resp['ResponseMetaData']['HTTPStatusCode']
 
