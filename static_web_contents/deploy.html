@@ -21,13 +21,24 @@
                 </ul>
             </div>
         </nav>
+
+        <!-- Description for AWS S3 Bucket Taken From: -->
+        <!-- https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html -->
+
+        <!-- Creation of form with multiple steps -->
+        <!-- https://www.w3schools.com/howto/howto_js_form_steps.asp -->
+
         <form id="regForm" action="">
 
             <h1>Simple Storage Service</h1>
             
             <div class="tab">
-                <h5>Bucket name</h5>
-                <p><input placeholder="Bucket name" oninput="this.className = ''"></p>
+                <h5>Bucket Configuration</h5>
+                <p>Set the name of the bucket and the region to deploy the bucket into. Both name and region are required.</p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Bucket name" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="Name of the bucket in lowercase">Info</a>
+                </p>
                 <div class="input-field col s12">
                     <select>
                         <option value="">Choose Region</option>
@@ -39,6 +50,7 @@
 
             <div class="tab">
                 <h5>Accelerate Configuration</h5>
+                <p>Configures the transfer acceleration state for an Amazon S3 bucket.</p>
                 <div class="input-field col s12">
                     <select id='accelerateConfig'>
                       <option value="">Choose Access Control Status</option>
@@ -50,6 +62,7 @@
             
             <div class="tab">
                 <h5>Access Control</h5>
+                <p>A canned access control list (ACL) that grants predefined permissions to the bucket.</p>
                 <div class="input-field col s12">
                     <select id='accessControl'>
                       <option value="">Choose Access Control</option>
@@ -67,14 +80,34 @@
             
             <div class="tab">
                 <h5>Analytics Configuration</h5>
-                <p><input placeholder="Id (Required)" oninput="this.className = ''"></p>
-                <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
+                <p>Specifies the configuration and any analyses for the analytics filter of an Amazon S3 bucket. If enabled, the Id and Destination are required</p>>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Id (Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The ID of the analytics configuration">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Prefix (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The prefix of an object to be included in the analytics results">Info</a>
+                </p>
                 <h6>Destination</h6>
-                <p><input placeholder="Bucket Account ID (Not Required)" oninput="this.className = ''"></p>
-                <p><input placeholder="Bucket Arn (Required)" oninput="this.className = ''"></p>
-                <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
+                <p>The place to store the data for an analysis. A bucket ARN is required for the destination if Analytics enabled.</p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Bucket Account ID (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The account ID of the destionation bucket">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Bucket Arn (Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The ARN of the destination bucket">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Prefix (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The prefix prepended to data exported">Info</a>
+                </p>
                 <h6>Tags</h6>
-                <p><input placeholder="key=value, (Not Required)" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="key=value, (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The tags to use when filtering analytics">Info</a>
+                </p>
                 <p>
                     <label>
                         <input id="analyticConfig" type="checkbox" class="filled-in" />
@@ -85,6 +118,7 @@
 
             <div class="tab">
                 <h5>Bucket Encryption</h5>
+                <p>Specifies default encryption for a bucket using server-side encryption with Amazon S3-managed keys (SSE-S3) or AWS KMS-managed keys (SSE-KMS).</p>
                 <div class="switch">
                     <label>
                         AES256
@@ -94,19 +128,39 @@
                     </label>
                 </div>
                 <h5>KMS Key:</h5>
-                <p><input placeholder="KMS Key (Required if KMS selected)" oninput="this.className = ''"></p>
+                <p>KMS Key if opting for default encryption using KMS.</p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="KMS Key (Required if KMS selected)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The key ID or the Amazon Resource Name (ARN)">Info</a>
+                </p>
             </div>
 
             <div class="tab">
                 <h5>CORS Configuration</h5>
-                <p><input id="corsId" placeholder="CORS Id (Not Required)" oninput="this.className = ''"></p>
-                <p><input type="number" placeholder="Max Age (Not Required)" oninput="this.className = ''"></p>
+                <p>Describes the cross-origin access configuration for objects in an Amazon S3 bucket. Allowed Origins and Methods are required to setup CORS if enabled.</p>
+                <p style="white-space: nowrap;">
+                    <input id="corsId" placeholder="CORS Id (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The id of the CORS configuration">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input type="number" placeholder="Max Age (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The time in seconds that your browser is to cache the preflight response for the specified resource">Info</a>
+                </p>
                 <h6>Allowed Headers</h6>
-                <p><input id="corsAllHead" placeholder="header, ... (Not Required)" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input id="corsAllHead" placeholder="header, ... (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="Headers that are specified in the Access-Control-Request-Headers header">Info</a>
+                </p>
                 <h6>Allowed Origins</h6>
-                <p><input placeholder="origin, ... (Required)" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="origin, ... (Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="One or more origins you want users to be able to access the bucket from">Info</a>
+                </p>
                 <h6>Exposed Headers</h6>
-                <p><input placeholder="header, ... (Not Required)" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="header, ... (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="One or more headers in the response that you want users to be able to access from their applications">Info</a>
+                </p>
                 <h6>Allowed Methods</h6>
                 <div class="input-field col s12">
                     <select id="allowedMethods" multiple>
@@ -127,12 +181,29 @@
 
             <div class="tab">
                 <h5>Inventory Configuration</h5>
-                <p><input placeholder="Inventory Id (Required)" oninput="this.className = ''"></p>
-                <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
+                <p>Specifies the inventory configuration for an Amazon S3 bucket. If enabled, the Id, Destination, Inventory Status, Objecy Version, and Scheduled Frequency are required.</p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Inventory Id (Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The id of the inventory configuration">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Prefix (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The prefix that is prepended to all inventory results">Info</a>
+                </p>
                 <h6>Destination</h6>
-                <p><input placeholder="Bucket Account ID (Not Required)" oninput="this.className = ''"></p>
-                <p><input placeholder="Bucket Arn (Required)" oninput="this.className = ''"></p>
-                <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
+                <p>Contains information about where to publish the inventory results. A bucket ARN is required for the destination if Inventory enabled. </p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Bucket Account ID (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The account ID of the destionation bucket">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Bucket Arn (Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The ARN of the destination bucket">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Prefix (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The prefix prepended to data exported">Info</a>
+                </p>
                 <div class="input-field col s12">
                     <select>
                         <option value="">Choose Inventory Status</option>
@@ -181,17 +252,35 @@
 
             <div class="tab">
                 <h5>Lifecycle Configuration</h5>
-                <p><input placeholder="Lifecycle Id (Not Required)" oninput="this.className = ''"></p>
-                <!-- <span class="helper-text" data-error="wrong" data-success="right"></span> -->
-                <p><input placeholder="Prefix (Not Required)" oninput="this.className = ''"></p>
+                <p>Specifies the lifecycle configuration for an Amazon S3 bucket. If enabled, at least one lifecycle option [AbortIncompleteMultipartUpload, ExpirationDate, ExpirationInDays, NoncurrentVersionExpirationInDays, NoncurrentVersionTransitions, or Transitions] is required alongside lifecycle status</p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Lifecycle Id (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The id of the lifecycle configuration">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Prefix (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="Object key prefix that identifies one or more objects to which this rule applies">Info</a>
+                </p>
                 <h6>Abort Incomplete Multipart Upload (Optional)</h6>
-                <p><input type="number" placeholder="Days to abort incomplete multipart upload" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input type="number" placeholder="Days to abort incomplete multipart upload" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="Specifies the number of days after which Amazon S3 aborts an incomplete multipart upload">Info</a>
+                </p>
                 <h6>Expiration Date (Optional)</h6>
-                <p><input placeholder="Timestamp for deletion" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Timestamp for deletion" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="Indicates when objects are deleted from Amazon S3 and Amazon S3 Glacier. The date value must be in ISO 8601 format">Info</a>
+                </p>
                 <h6>Expiration In Days (Optional)</h6>
-                <p><input type="number" placeholder="Days to delete current versions" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input type="number" placeholder="Days to delete current versions" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="Indicates the number of days after creation when objects are deleted from Amazon S3 and Amazon S3 Glacier">Info</a>
+                </p>
                 <h6>Noncurrent Version Expiration In Days (Optional)</h6>
-                <p><input type="number" placeholder="Days to delete non current versions" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input type="number" placeholder="Days to delete non current versions" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="For buckets with versioning enabled (or suspended), specifies the time, in days, between when a new version of the object is uploaded to the bucket and when old versions of the object expire">Info</a>
+                </p>
                 <h6>Noncurrent Version Transistions (Optional)</h6>
                 <div class="input-field col s12">
                     <select>
@@ -203,7 +292,10 @@
                         <option value="STANDARD_IA">STANDARD_IA</option>
                     </select>
                 </div>
-                <p><input type="number" placeholder="Transistion in days" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input type="number" placeholder="Transistion in days" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="For buckets with versioning enabled (or suspended), one or more transition rules that specify when non-current objects transition to a specified storage class">Info</a>
+                </p>
                 <h6>Transistions (Optional)</h6>
                 <div class="input-field col s12">
                     <select>
@@ -215,10 +307,19 @@
                         <option value="STANDARD_IA">STANDARD_IA</option>
                     </select>
                 </div>
-                <p><input type="number" placeholder="Transistion date in timestamp (Optional)" oninput="this.className = ''"></p>
-                <p><input type="number" placeholder="Transistion in days (Optional)" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input type="number" placeholder="Transistion date in timestamp (Optional)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="Indicates when objects are transitioned to the specified storage class. The date value must be in ISO 8601 format">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input type="number" placeholder="Transistion in days (Optional)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="Indicates the number of days after creation when objects are transitioned to the specified storage class">Info</a>
+                </p>
                 <h6>Tag Filters</h6>
-                <p><input placeholder="key=value, (Not Required)" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="key=value, (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="Tags to use to identify a subset of objects to which the lifecycle rule applies">Info</a>
+                </p>
                 <div class="input-field col s12">
                     <select>
                         <option value="">Choose Lifecycle Status</option>
@@ -234,16 +335,33 @@
 
             <div class="tab">
                 <h5>Logging Configuration</h5>
-                <p><input placeholder="Destination Bucket Name" oninput="this.className = ''"></p>
-                <p><input placeholder="Logfile Prefix" oninput="this.className = ''"></p>
+                <p>Describes where logs are stored and the prefix that Amazon S3 assigns to all log object keys for a bucket.</p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Destination Bucket Name" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The name of the bucket where Amazon S3 should store server access log files">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Logfile Prefix" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="A prefix for all log object keys">Info</a>
+                </p>
             </div>
             
             <div class="tab">
                 <h5>Metrics Configurations</h5>
-                <p><input placeholder="Metric Confiugration Id" oninput="this.className = ''"></p>
-                <p><input placeholder="Prefix" oninput="this.className = ''"></p>
+                <p>Specifies a metrics configuration for the CloudWatch request metrics (specified by the metrics configuration ID) from an Amazon S3 bucket. If enabled, an id is required.</p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Metric Confiugration Id" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The id of the metrics configuration">Info</a>
+                </p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Prefix" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The prefix that an object must have to be included in the metrics results">Info</a>
+                </p>
                 <h6>Tag Filters</h6>
-                <p><input placeholder="key=value, (Not Required)" oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="key=value, (Not Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="Specifies a list of tag filters to use as a metrics configuration filter">Info</a>
+                </p>
                 <p><label>
                     <input id="metricsConfig" type="checkbox" class="filled-in" />
                     <span>Enable Metrics</span>
@@ -252,6 +370,7 @@
 
             <div class="tab">
                 <h5>Notification Configuration</h5>
+                <p>Describes the notification configuration for an Amazon S3 bucket. If enabled, a notification and event is required.</p>
                 <div class="input-field col s12">
                     <select>
                         <option value="">Choose Notification</option>
@@ -260,8 +379,15 @@
                         <option value="Topic">Topic</option>
                     </select>
                 </div>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Notification ARN (Required)" oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The Notification Resource ARN">Info</a>
+                </p>
                 <h6>Event</h6>
-                <p><input placeholder="Event to invoke metric " oninput="this.className = ''"></p>
+                <p style="white-space: nowrap;">
+                    <input placeholder="Event to invoke metric " oninput="this.className = ''">
+                    <a class="btn tooltipped" data-position="left" data-tooltip="The Amazon S3 bucket event to invoke metric i.e. s3:Object...">Info</a>
+                </p>
                 <h6>Filter</h6>
                 <div class="input-field col s12">
                     <select>

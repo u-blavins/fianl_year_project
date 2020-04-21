@@ -1,4 +1,4 @@
-var currentTab = 0; // Current tab is set to be the first tab (0)
+var currentTab = 10; // Current tab is set to be the first tab (0)
 showTab(currentTab); // Display the current tab
 
 var configurations = {
@@ -352,14 +352,14 @@ function validateInventoryConfigurations(x, config) {
         else { y[6].className += " invalid"; valid = false; }
         if (y[7].value != "Choose Scheduled Frequency") { 
             y[7].className = "select-dropdown dropdown-trigger";
-            inventory["ScheduledFrequency"] = y[7].value; }
+            inventory["ScheduleFrequency"] = y[7].value; }
         else { y[7].className += " invalid"; valid = false; }
         if (y[8].value != "") {
             var headers = returnList(y[8].value); 
             if (headers.length != 0) { inventory['OptionalFields'] = headers;}
         }
         if ("Id" in inventory && "Enabled" in inventory &&
-            "IncludedObjectVersions" in inventory && "ScheduledFrequency" in inventory &&
+            "IncludedObjectVersions" in inventory && "ScheduleFrequency" in inventory &&
             "BucketArn" in destination) {
                 inventory['Destination'] = destination;
                 payload["InventoryConfigurations"] = [inventory];
@@ -461,10 +461,24 @@ function validateNotificationConfiguration(x, config) {
             if (y[0].value == "Queue") { notif = "QueueConfigurations"; }
             if (y[0].value == "Topic") { notif = "TopicConfigurations"; }
         } else { y[0].className += " invalid"; valid=false; }
-        if (y[1].value != "") { notif_config["Event"] = y[1].value; }
+        if (y[1].value != "" && y[0].value != "Choose Notification") { 
+            switch (y[0].value) {
+                case "Lambda":
+                    notif_config["Function"] = y[1].value;
+                    break;
+                case "Queue":
+                    notif_config["Queue"] = y[1].value;
+                    break;
+                case "Topic":
+                    notif_config["Topic"] = y[1].value;
+                    break;
+            }
+        }
         else { y[1].className += " invalid"; valid = false; }
-        if (y[2].value != "Filter Name" && y[3].value != "") {
-            notif_config = { Name: y[2].value, Value: y[3].value }}
+        if (y[2].value != "") { notif_config["Event"] = y[2].value; }
+        else { y[2].className += " invalid"; valid = false; }
+        if (y[3].value != "Filter Name" && y[4].value != "") {
+            notif_config = { Name: y[3].value, Value: y[4].value }}
         if (notif != "" && "Event" in notif_config) {
             switch (notif) {
                 case "LambdaConfigurations":
