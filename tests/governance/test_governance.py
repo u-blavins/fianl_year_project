@@ -130,7 +130,7 @@ class TestS3_Gov:
 
 
     def test_bucket_encryption_validates_incorrect_encryption(self):
-        """ Test Success: Validates incorrect encryption and sets mandatory encryption """
+        """ Test Failure: Validates incorrect encryption and sets mandatory encryption """
         test_template = deepcopy(self.mock_template)
         properties = test_template['Resources']['Bucket']['Properties']
         properties['BucketEncryption'] = {

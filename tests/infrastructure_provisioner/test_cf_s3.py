@@ -22,6 +22,24 @@ class TestS3_CF:
         sut = self.mock_s3_cf.get_payload()
         assert sut == expected_payload
 
+    def test_get_bucketname_returns_ok_if_name_present(self):
+        """ Test Success: Bucket name returned and correct response returned """
+        fake_payload = {'BucketName': 'test-bucket-name'}
+        expected_response = {'Message': 'test-bucket-name', 'ResponseCode': 200}
+        self.mock_s3_cf.set_payload(fake_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_bucketname()
+        assert sut == expected_response
+
+    def test_get_bucketname_returns_not_found_if_name_not_present(self):
+        """ Test Failure: Not found returned if bucket name not present """
+        fake_payload = {}
+        expected_response = {'Message': 'Bucket name not found', 'ResponseCode': 404}
+        self.mock_s3_cf.set_payload(fake_payload)
+        self.mock_s3_cf.set_template()
+        sut = self.mock_s3_cf.get_bucketname()
+        assert sut == expected_response
+
     def test_construct_tags_returns_cf_tags(self):
         """ Test Success: CloudFormation tags returned correctly """
         test_tags = {'test_key': 'test_value'}
@@ -90,23 +108,26 @@ class TestS3_CF:
             "BucketArn": "BUCKET_ARN",
             "Prefix": fake_prefix
         }
-        expected = {'AnalyticsConfiguration': {
+        expected = {'AnalyticsConfigurations': [{
             'Id': 'test_id',
             'Prefix': 'test_prefix',
             'StorageClassAnalysis': {
                 'DataExport': {
-                    'BucketAccountId': 'ACCOUNT_NUM',
-                    'BucketArn': 'BUCKET_ARN',
-                    'Format': 'CSV',
-                    'Prefix': 'test_prefix'
-                },
-                'OutputSchemaVersion': 'V_1'},
+                    'Destination': {
+                        'BucketAccountId': 'ACCOUNT_NUM',
+                        'BucketArn': 'BUCKET_ARN',
+                        'Format': 'CSV',
+                        'Prefix': 'test_prefix'
+                    },
+                    'OutputSchemaVersion': 'V_1'
+                }
+            },
             'TagFilters': [
                 {'Key': 'test_key_1','Value': 'test_value_1'}]
-            }}
+            }]}
 
         test_payload = {
-            "AnalyticsConfiguration": {
+            "AnalyticsConfigurations": {
                 "Id": fake_id,
                 "Prefix": fake_prefix,
                 "Destination": fake_destination,
@@ -124,16 +145,20 @@ class TestS3_CF:
             "BucketAccountId": "ACCOUNT_NUM",
             "BucketArn": "BUCKET_ARN"
         }
-        expected = {'AnalyticsConfiguration': {
+        expected = {'AnalyticsConfigurations': [{
             'StorageClassAnalysis': {
                 'DataExport': {
-                    'BucketAccountId': 'ACCOUNT_NUM',
-                    'BucketArn': 'BUCKET_ARN',
-                    'Format': 'CSV'},
-                'OutputSchemaVersion': 'V_1'}
-            }}
+                    'Destination': {
+                        'BucketAccountId': 'ACCOUNT_NUM',
+                        'BucketArn': 'BUCKET_ARN',
+                        'Format': 'CSV'
+                    },
+                    'OutputSchemaVersion': 'V_1'
+                }
+            }
+        }]}
         test_payload = {
-            "AnalyticsConfiguration": {
+            "AnalyticsConfigurations": {
                 "Destination": fake_destination
             }
         }
@@ -154,7 +179,7 @@ class TestS3_CF:
         }
         expected = {}
         test_payload = {
-            "AnalyticsConfiguration": {
+            "AnalyticsConfigurations": {
                 "Id": fake_id,
                 "Prefix": fake_prefix,
                 "Destination": fake_destination,
@@ -279,7 +304,7 @@ class TestS3_CF:
                 "IncludedObjectVersions": "All",
                 "OptionalFields": ["Size", "LastModifiedDate"],
                 "Prefix": fake_prefix,
-                "ScheduledFrequency": "Daily"
+                "ScheduleFrequency": "Daily"
             }]
         }
         expected = {'InventoryConfigurations': [{'Destination': {'BucketAccountId': 'ACCOUNT_NUM',
@@ -289,7 +314,7 @@ class TestS3_CF:
             'IncludedObjectVersions': 'All',
             'OptionalFields': ['Size', 'LastModifiedDate'],
             'Prefix': 'test_prefix',
-            'ScheduledFrequency': 'Daily'}]}
+            'ScheduleFrequency': 'Daily'}]}
         self.mock_s3_cf.set_payload(test_payload)
         self.mock_s3_cf.set_template()
         sut = self.mock_s3_cf.get_template()

@@ -12,7 +12,7 @@ class S3_CF:
         self.S3_BUCKET_PROPERTIES = [
             "AccelerateConfiguration",
             "AccessControl",
-            "AnalyticsConfiguration",
+            "AnalyticsConfigurations",
             "BucketEncryption",
             "BucketName",
             "CorsConfiguration",
@@ -82,7 +82,7 @@ class S3_CF:
             self.get_acceleration_config(arg)
         if arg == "AccessControl":
             self.get_access_control(arg)
-        if arg == "AnalyticsConfiguration":
+        if arg == "AnalyticsConfigurations":
             self.get_analytics_configuration(arg)
         if arg == "BucketEncryption":
             self.get_bucket_encryption(arg)
@@ -179,15 +179,17 @@ class S3_CF:
                                 bucket_property[prop]['BucketArn']
                             dest['Format'] = "CSV"
                             template['StorageClassAnalysis'] = {
-                                "DataExport": dest,
-                                "OutputSchemaVersion": "V_1"
+                                'DataExport': {
+                                    'Destination': dest,
+                                    'OutputSchemaVersion': "V_1"   
+                                }
                             }
                     elif prop == "TagFilters":
                         template[prop] = self.construct_tags(bucket_property[prop])
                     else:
                         template[prop] = bucket_property[prop]
         if "StorageClassAnalysis" in template:
-            self.template[arg] = template
+            self.template[arg] = [template]
 
     def get_bucket_encryption(self, arg):
         """ Check to validate bucket encryption from a given payload
@@ -317,10 +319,10 @@ class S3_CF:
             if "IncludedObjectVersions" in configuration:
                 if configuration['IncludedObjectVersions'] in ['All', 'Current']:
                     inventory['IncludedObjectVersions'] = configuration['IncludedObjectVersions']
-            if "ScheduledFrequency" in configuration:
-                if configuration['ScheduledFrequency'] in ['Daily', 'Weekly']:
-                    inventory['ScheduledFrequency'] = configuration['ScheduledFrequency']
-            if {'Enabled', 'Id', 'IncludedObjectVersions', 'ScheduledFrequency'}.issubset(set(inventory.keys())):
+            if "ScheduleFrequency" in configuration:
+                if configuration['ScheduleFrequency'] in ['Daily', 'Weekly']:
+                    inventory['ScheduleFrequency'] = configuration['ScheduleFrequency']
+            if {'Enabled', 'Id', 'IncludedObjectVersions', 'ScheduleFrequency'}.issubset(set(inventory.keys())):
                 inventory_configurations.append(inventory)
         if len(inventory_configurations) != 0:
             self.template[arg] = inventory_configurations

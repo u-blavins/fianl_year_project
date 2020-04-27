@@ -40,11 +40,6 @@
                     "Variable": "$.Option",
                     "StringEquals": "VALIDATION",
                     "Next": "ValidateTemplate"
-                },
-                {
-                    "Variable": "$.Option",
-                    "StringEquals": "DEPLOY",
-                    "Next": "DeployTemplate"
                 }
             ]
         },
@@ -62,11 +57,6 @@
             "Type": "Task",
             "Resource": "arn:aws:lambda:eu-west-2:172463481696:function:ValidateTemplate",
             "Next": "ReturnTemplate"
-        },
-        "DeployTemplate": {
-            "Type": "Task",
-            "Resource": "arn:aws:lambda:eu-west-2:172463481696:function:DeployTemplate",
-            "Next": "AuditDeployment"
         },
         "ReturnTemplate": {
             "Type": "Task",
